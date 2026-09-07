@@ -353,6 +353,13 @@ h1, .brand {
     text-transform: uppercase;
 }
 
+.experience-date {
+    margin-top: 0.2rem;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
 .experience-item h3,
 .achievement-item h3 {
     margin: 0.45rem 0 0.65rem;
