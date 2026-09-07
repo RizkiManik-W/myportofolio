@@ -288,6 +288,94 @@ h1, .brand {
     font-size: 0.9rem;
 }
 
+.experience-section,
+.achievements-section {
+    padding: 0 0 5rem;
+}
+
+.split-section {
+    display: grid;
+    grid-template-columns: minmax(180px, 0.65fr) 1.35fr;
+    gap: 3rem;
+}
+
+.section-heading-vertical {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.65rem;
+    margin-bottom: 0;
+    border-bottom: 0;
+}
+
+.experience-list {
+    border-left: 1px solid var(--cyan-bright);
+    padding-left: 1.5rem;
+}
+
+.experience-item {
+    position: relative;
+    padding: 0.25rem 0 0.25rem 0.5rem;
+}
+
+.experience-marker {
+    position: absolute;
+    top: 0.55rem;
+    left: -1.85rem;
+    width: 0.65rem;
+    height: 0.65rem;
+    border: 2px solid var(--cyan-light);
+    border-radius: 50%;
+    background-color: var(--bg-primary);
+}
+
+.experience-label,
+.achievement-item p {
+    color: var(--cyan-light);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.experience-item h3,
+.achievement-item h3 {
+    margin: 0.45rem 0 0.65rem;
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    font-size: 1.45rem;
+    line-height: 1.15;
+}
+
+.experience-item > div > p:last-child {
+    max-width: 34rem;
+    color: var(--text-secondary);
+}
+
+.achievement-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.achievement-item {
+    min-height: 150px;
+    padding: 1.25rem;
+    border-top: 2px solid var(--cyan-bright);
+    background-color: var(--bg-secondary);
+}
+
+.achievement-number {
+    color: var(--text-muted);
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.achievement-item h3 {
+    max-width: 18rem;
+    margin-bottom: 0.35rem;
+}
+
 @keyframes skill-reveal {
     from {
         opacity: 0;
@@ -340,5 +428,19 @@ h1, .brand {
 
     .skill-card {
         min-height: 190px;
+    }
+
+    .site-header nav {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .split-section,
+    .achievement-list {
+        grid-template-columns: 1fr;
+    }
+
+    .split-section {
+        gap: 1.5rem;
     }
 }
