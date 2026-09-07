@@ -113,7 +113,7 @@ h1, .brand {
 }
 
 .hero-identity h1 {
-    font-size: clamp(3rem, 7vw, 5rem);
+    font-size: clamp(3rem, 7vw, 4.25rem);
     line-height: 0.95;
     max-width: 100%;
     overflow-wrap: anywhere;
