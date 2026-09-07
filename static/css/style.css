@@ -1,9 +1,11 @@
+/* Global reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Theme colors */
 :root {
     --bg-primary: #07090B;
     --bg-secondary: #0B1014;
@@ -22,6 +24,7 @@
     --radius: 4px;
 }
 
+/* Base styles */
 body {
     font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--text-primary);
@@ -33,12 +36,14 @@ h1, .brand {
     font-family: "Space Grotesk", -apple-system, sans-serif;
 }
 
+/* Layout wrapper */
 .container {
     max-width: 960px;
     margin: 0 auto;
     padding: 0 1.5rem;
 }
 
+/* Header */
 .site-header {
     border-bottom: 1px solid var(--line);
     background-color: var(--bg-primary);
@@ -74,6 +79,7 @@ h1, .brand {
     color: var(--cyan-light);
 }
 
+/* Hero section */
 .hero {
     padding: 4.5rem 0 5rem;
 }
@@ -188,6 +194,7 @@ h1, .brand {
     border: 3px solid var(--text-primary);
 }
 
+/* Skills */
 .skills-section {
     padding: 2rem 0 5rem;
 }
@@ -288,6 +295,7 @@ h1, .brand {
     font-size: 0.9rem;
 }
 
+/* Experience + achievements */
 .experience-section,
 .achievements-section {
     padding: 0 0 5rem;
@@ -376,6 +384,7 @@ h1, .brand {
     margin-bottom: 0.35rem;
 }
 
+/* Animations */
 @keyframes skill-reveal {
     from {
         opacity: 0;
@@ -387,6 +396,7 @@ h1, .brand {
     }
 }
 
+/* Footer */
 .site-footer {
     padding: 1.5rem;
     color: var(--text-muted);
@@ -395,6 +405,7 @@ h1, .brand {
     background-color: var(--bg-secondary);
 }
 
+/* Responsive */
 @media (max-width: 600px) {
     .hero-grid {
         grid-template-columns: 1fr;
