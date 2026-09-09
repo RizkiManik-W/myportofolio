@@ -117,3 +117,7 @@ sftp-config.json
 !.vscode/launch.json
 !.vscode/extensions.json
 .history
+
+.env*
+db.sqlite3
+env/
