@@ -56,3 +56,19 @@ class MainTest(TestCase):
         self.assertFalse(self.experience.is_ongoing)
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
+
+    def test_skill_model_and_skills_page(self):
+        skill = Skill.objects.create(
+            title="Competitive Programming",
+            description="Solving algorithmic problems for fun.",
+            category="programming",
+            order=1,
+        )
+
+        self.assertEqual(str(skill), "Competitive Programming")
+
+        response = self.client.get(reverse("main:show_skills"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "skills.html")
+        self.assertContains(response, skill.title)
+        self.assertContains(response, skill.description)
