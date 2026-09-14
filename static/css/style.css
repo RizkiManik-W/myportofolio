@@ -296,6 +296,23 @@ h1, .brand {
     line-height: 1.1;
 }
 
+.skill-type {
+    position: absolute;
+    top: 0.85rem;
+    right: 0.85rem;
+    display: inline-block;
+    padding: 0.10rem 0.36rem;
+    color: var(--cyan-light);
+    background: rgba(112, 215, 228, 0.05);
+    border: 1px solid rgba(112, 215, 228, 0.22);
+    border-radius: 999px;
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.035em;
+    text-transform: uppercase;
+    line-height: 1.1;
+}
+
 .skill-card p {
     max-width: 17rem;
     color: var(--text-secondary);

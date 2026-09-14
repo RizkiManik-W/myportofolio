@@ -57,7 +57,13 @@ class MainTest(TestCase):
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
 
-    def test_skill_model_and_skills_page(self):
+    def test_skill_url_uses_skills_template(self):
+        response = self.client.get(reverse("main:show_skills"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "skills.html")
+
+    def test_skill_model_data_appears_in_skills_page_html(self):
         skill = Skill.objects.create(
             title="Competitive Programming",
             description="Solving algorithmic problems for fun.",
@@ -69,6 +75,13 @@ class MainTest(TestCase):
 
         response = self.client.get(reverse("main:show_skills"))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, "skills.html")
         self.assertContains(response, skill.title)
         self.assertContains(response, skill.description)
+
+    def test_empty_skills_page_shows_empty_message(self):
+        Skill.objects.all().delete()
+
+        response = self.client.get(reverse("main:show_skills"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Belum ada skill yang ditambahkan.")

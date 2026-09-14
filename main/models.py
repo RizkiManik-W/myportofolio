@@ -4,12 +4,14 @@ from django.db import models
 
 
 class Skill(models.Model):
-    SKILL_CHOICES = [
-        ("programming", "Programming"),
+    SKILL_TYPES = [
+        ("programming", "Programming Languages"),
+        ("web", "Web Development"),
         ("game", "Game Development"),
-        ("writing", "Writing"),
-        ("design", "Design"),
-        ("systems", "Systems"),
+        ("database", "Database"),
+        ("systems", "Systems & Networking"),
+        ("tools", "Tools & Technologies"),
+        ("other", "Other"),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -17,7 +19,7 @@ class Skill(models.Model):
     description = models.TextField()
     category = models.CharField(
         max_length=20,
-        choices=SKILL_CHOICES,
+        choices=SKILL_TYPES,
         default="programming",
     )
     proficiency = models.CharField(max_length=255, blank=True, default="")
