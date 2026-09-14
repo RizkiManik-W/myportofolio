@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from main.models import Experience
+from main.models import Experience, Skill
 
 
 def show_main(request):
@@ -23,5 +23,10 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+
 def show_skills(request):
+    context = {
+        "name": "Rizki",
+        "skills_list": Skill.objects.order_by("order"),
+    }
     return render(request, "skills.html", context) 
