@@ -473,10 +473,12 @@ h1, .brand {
 .experience-section {
     padding: 4rem 0;
     border-top: 1px solid var(--line);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
 }
 
 .section-kicker {
-    color: var(--accent-dark);
+    color: var(--cyan-light);
     font-size: 0.8rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -485,7 +487,8 @@ h1, .brand {
 
 .experience-section h1 {
     margin: 0.4rem 0 1.5rem;
-    font-size: 2rem;
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    color: var(--text-primary);
 }
 
 .experience-grid {
@@ -496,13 +499,14 @@ h1, .brand {
 
 .experience-card {
     padding: 1.25rem;
-    background-color: #fff;
+    background: linear-gradient(145deg, rgba(25, 58, 67, 0.8), rgba(11, 16, 20, 0.95));
     border: 1px solid var(--line);
     border-radius: var(--radius);
+    color: var(--text-primary);
 }
 
 .experience-category {
-    color: var(--accent-dark);
+    color: var(--cyan-light);
     font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -510,18 +514,21 @@ h1, .brand {
 
 .experience-card h2 {
     margin: 0.5rem 0;
+    font-family: "Space Grotesk", -apple-system, sans-serif;
     font-size: 1.25rem;
+    color: var(--text-primary);
 }
 
 .experience-description,
 .empty-state {
-    color: var(--text-muted);
+    color: var(--text-secondary);
 }
 
 .experience-status {
     margin-top: 1rem;
     font-size: 0.85rem;
     font-weight: 600;
+    color: var(--text-muted);
 }
 
 /*

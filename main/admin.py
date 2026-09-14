@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Experience
+
+
+@admin.register(Experience)
+class ExperienceAdmin(admin.ModelAdmin):
+    list_display = ("title", "category", "started_at", "ended_at")
+    list_filter = ("category", "ended_at")
+    search_fields = ("title", "description")
