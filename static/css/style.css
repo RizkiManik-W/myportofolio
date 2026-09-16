@@ -267,10 +267,21 @@ button.button:hover {
     box-shadow: none;
 }
 
-.button-danger {
-    background: linear-gradient(135deg, rgba(185, 45, 38, 1), rgba(126, 27, 23, 1));
-    border-color: rgba(255, 124, 124, 0.45);
-    box-shadow: 0 10px 22px rgba(185, 45, 38, 0.2);
+.skill-card .button-danger,
+.skill-card button.button-danger {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 0;
+    height: auto;
+    padding: 0.2rem 0.62rem;
+    margin-top: 0.75rem;
+    background: linear-gradient(135deg, rgba(185, 45, 38, 0.92), rgba(126, 27, 23, 0.92));
+    border-color: rgba(255, 124, 124, 0.35);
+    box-shadow: none;
+    font-size: 0.72rem;
+    line-height: 1.15;
+    border-radius: 0.5rem;
+    align-self: flex-start;
 }
 
 .project-search {
