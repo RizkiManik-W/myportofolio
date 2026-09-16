@@ -18,6 +18,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", "putu-rizki-myportofolio.pws.cs.ui.ac.id"]
+CSRF_TRUSTED_ORIGINS = ["https://putu-rizki-myportofolio.pws.cs.ui.ac.id"]
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
