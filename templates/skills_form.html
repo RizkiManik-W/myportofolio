@@ -8,7 +8,10 @@
 <main>
     <section class="skills-section">
         <div class="container">
-            <h1>Add Skill</h1>
+            <div class="section-heading section-heading-vertical">
+                <p class="section-kicker">Add a new skill</p>
+                <h2>Add Skill</h2>
+            </div>
 
             <form method="post" class="skill-form">
                 {% csrf_token %}
@@ -27,13 +30,15 @@
                     </div>
                 {% endfor %}
 
-                <button type="submit" class="button">
-                    Add Skill
-                </button>
+                <div class="skill-form-actions">
+                    <button type="submit" class="button">
+                        Add Skill
+                    </button>
 
-                <a href="{% url 'main:show_skills' %}" class="button button-secondary">
-                    Cancel
-                </a>
+                    <a href="{% url 'main:show_skills' %}" class="button button-secondary">
+                        Cancel
+                    </a>
+                </div>
             </form>
         </div>
     </section>

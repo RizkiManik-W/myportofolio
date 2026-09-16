@@ -26,9 +26,17 @@
         <section class="skills-section" id="skills">
             <div class="container">
                 <div class="section-heading">
-                    <p class="section-kicker">What I enjoy building</p>
-                    <h2>Skills &amp; interests</h2>
+                    <div>
+                        <p class="section-kicker">What I enjoy building</p>
+                        <h2>Skills &amp; interests</h2>
+                    </div>
+                    <a href="{% url 'main:create_skill' %}" class="button">Add Skill</a>
                 </div>
+
+                <form method="get" action="{% url 'main:show_skills' %}" class="project-search">
+                    <input type="search" name="title" value="{{ title_query }}" placeholder="Search skills" class="project-search__input">
+                    <button type="submit" class="button">Search</button>
+                </form>
 
                 <div class="skills-grid">
                     {% for skill in skills_list %}
@@ -42,9 +50,17 @@
                                     <p class="skill-proficiency">{{ skill.proficiency }}</p>
                                 {% endif %}
                             </div>
+                            <form method="post" action="{% url 'main:delete_skill' skill.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="button button-danger">Delete</button>
+                            </form>
                         </article>
                     {% empty %}
-                        <p class="empty-state">Belum ada skill yang ditambahkan.</p>
+                        {% if title_query %}
+                            <p class="empty-state">No skills found with that name.</p>
+                        {% else %}
+                            <p class="empty-state">Belum ada skill yang ditambahkan.</p>
+                        {% endif %}
                     {% endfor %}
                 </div>
             </div>
