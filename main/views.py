@@ -1,7 +1,10 @@
-from django.shortcuts import render
+from django.contrib import messages
+from django.core import serializers
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect, render
 
+from main.forms import SkillForm
 from main.models import Experience, Skill
-
 
 def show_main(request):
     context = {
@@ -25,8 +28,17 @@ def show_experience(request):
 
 
 def show_skills(request):
+    json_response = get_skills_json(request)
+
+    skills = serializers.deserialize(
+        "json",
+        json_response.content.decode("utf-8"),
+    )
+    skills = [skill.object for skill in skills]
+
     context = {
         "name": "Rizki",
-        "skills_list": Skill.objects.order_by("order"),
+        "skills_list": skills,
+        "title_query": request.GET.get("title", "").strip(),
     }
-    return render(request, "skills.html", context) 
+    return render(request, "skills.html", context)
