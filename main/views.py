@@ -43,6 +43,23 @@ def create_experience(request):
     return render(request, "experience_form.html", context)
 
 
+def update_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience updated successfully.")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Rizki",
+        "form": form,
+        "is_editing": True,
+    }
+    return render(request, "experience_form.html", context)
+
+
 def show_skills(request):
     json_response = get_skills_json(request)
 
