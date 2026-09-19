@@ -665,6 +665,57 @@ button.button:hover {
     color: var(--text-muted);
 }
 
+.experience-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.experience-card .experience-actions a.button,
+.experience-card .experience-actions a.button.button-secondary,
+.experience-card .experience-actions button.button,
+.experience-card .experience-actions form button.button,
+.experience-card .experience-actions form button.button-danger {
+    display: inline-flex;
+    min-height: 0;
+    height: 1.7rem;
+    padding: 0.2rem 0.62rem;
+    margin-top: 0;
+    font-size: 0.72rem;
+    line-height: 1.15;
+    border-radius: 0.5rem;
+}
+
+.experience-card .experience-actions form {
+    margin: 0;
+}
+
+.experience-card .experience-actions a.button.button-secondary {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(199, 206, 208, 0.22);
+    color: var(--text-secondary);
+    box-shadow: none;
+}
+
+.experience-card .experience-actions .button-danger,
+.experience-card .experience-actions button.button-danger {
+    display: inline-flex;
+    width: fit-content;
+    min-height: 0;
+    height: auto;
+    padding: 0.2rem 0.62rem;
+    background: linear-gradient(135deg, rgba(185, 45, 38, 0.92), rgba(126, 27, 23, 0.92));
+    border-color: rgba(255, 124, 124, 0.35);
+    box-shadow: none;
+    font-size: 0.72rem;
+    line-height: 1.15;
+    border-radius: 0.5rem;
+    align-self: flex-start;
+}
+
 .skill-form {
     max-width: 700px;
     margin-top: 1.5rem;
