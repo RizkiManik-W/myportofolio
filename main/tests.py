@@ -86,6 +86,12 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Belum ada skill yang ditambahkan.")
 
+    def test_delete_experience_removes_existing_experience(self):
+        response = self.client.post(reverse("main:delete_experience", args=[self.experience.pk]))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Experience.objects.filter(pk=self.experience.pk).exists())
+
     def test_update_skill_form_updates_existing_skill(self):
         skill = Skill.objects.create(
             title="Python",

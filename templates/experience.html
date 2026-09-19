@@ -27,6 +27,14 @@
                             {% else %}
                                 <p class="experience-status">Selesai</p>
                             {% endif %}
+
+                            <div class="experience-actions">
+                                <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary">Edit</a>
+                                <form method="post" action="{% url 'main:delete_experience' experience.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-danger">Delete</button>
+                                </form>
+                            </div>
                         </article>
                     {% empty %}
                         <p class="empty-state">

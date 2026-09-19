@@ -120,6 +120,16 @@ def get_skills_json(request):
     return HttpResponse(skills_json, content_type="application/json")
 
 
+def delete_experience(request, experience_id):
+    experience = get_object_or_404(Experience, pk=experience_id)
+
+    if request.method == "POST":
+        experience.delete()
+        messages.success(request, "Experience deleted successfully.")
+
+    return redirect("main:show_experience")
+
+
 def delete_skill(request, skill_id):
     skill = get_object_or_404(Skill, pk=skill_id)
 
