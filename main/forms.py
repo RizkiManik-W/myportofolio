@@ -1,6 +1,6 @@
-from django.forms import ModelForm, TextInput, Textarea, NumberInput
+from django.forms import ModelForm, NumberInput, TextInput, Textarea
 
-from main.models import Skill
+from main.models import Experience, Skill
 
 
 class SkillForm(ModelForm):
@@ -35,5 +35,36 @@ class SkillForm(ModelForm):
             ),
             "order": NumberInput(
                 attrs={"min": 1}
+            ),
+        }
+
+
+class ExperienceForm(ModelForm):
+    class Meta:
+        model = Experience
+        fields = [
+            "title",
+            "description",
+            "category",
+            "thumbnail",
+        ]
+        labels = {
+            "title": "Experience title",
+            "description": "Description",
+            "category": "Category",
+            "thumbnail": "Thumbnail URL",
+        }
+        widgets = {
+            "title": TextInput(
+                attrs={"placeholder": "Assistant Lecturer"}
+            ),
+            "description": Textarea(
+                attrs={
+                    "placeholder": "Describe your responsibilities",
+                    "rows": 4,
+                }
+            ),
+            "thumbnail": TextInput(
+                attrs={"placeholder": "https://example.com/image.jpg"}
             ),
         }
