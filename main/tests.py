@@ -57,6 +57,19 @@ class MainTest(TestCase):
         self.assertContains(response, "Selesai")
         self.assertNotContains(response, "Sedang berlangsung")
 
+    def test_experience_search_filters_by_title(self):
+        Experience.objects.create(
+            title="Frontend Intern",
+            description="Built UI mockups.",
+            category="internship",
+        )
+
+        response = self.client.get(reverse("main:show_experience"), {"title": "Asisten"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Asisten Dosen PBP")
+        self.assertNotContains(response, "Frontend Intern")
+
     def test_skill_url_uses_skills_template(self):
         response = self.client.get(reverse("main:show_skills"))
 

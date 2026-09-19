@@ -16,6 +16,11 @@
                     <a href="{% url 'main:create_experience' %}" class="button">Add Experience</a>
                 </div>
 
+                <form method="get" action="{% url 'main:show_experience' %}" class="project-search">
+                    <input type="search" name="title" value="{{ title_query }}" placeholder="Search experience" class="project-search__input">
+                    <button type="submit" class="button">Search</button>
+                </form>
+
                 <div class="experience-grid">
                     {% for experience in experience_list %}
                         <article class="experience-card">

@@ -20,9 +20,16 @@ def show_main(request):
 
 
 def show_experience(request):
+    title_query = request.GET.get("title", "").strip()
+    experience_list = Experience.objects.all()
+
+    if title_query:
+        experience_list = experience_list.filter(title__icontains=title_query)
+
     context = {
         "name": "Rizki",
-        "experience_list": Experience.objects.all(),
+        "experience_list": experience_list,
+        "title_query": title_query,
     }
     return render(request, "experience.html", context)
 
