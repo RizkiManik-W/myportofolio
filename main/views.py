@@ -3,7 +3,7 @@ from django.core import serializers
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
-from main.forms import SkillForm
+from main.forms import ExperienceForm, SkillForm
 from main.models import Experience, Skill
 
 def show_main(request):
@@ -25,6 +25,22 @@ def show_experience(request):
         "experience_list": Experience.objects.all(),
     }
     return render(request, "experience.html", context)
+
+
+def create_experience(request):
+    form = ExperienceForm(request.POST or None)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Experience added successfully.")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Rizki",
+        "form": form,
+        "is_editing": False,
+    }
+    return render(request, "experience_form.html", context)
 
 
 def show_skills(request):

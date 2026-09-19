@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block meta %}
+    <title>{% if is_editing %}Edit Experience{% else %}Add Experience{% endif %} - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+<main>
+    <section class="skills-section">
+        <div class="container">
+            <div class="section-heading section-heading-vertical">
+                <p class="section-kicker">{% if is_editing %}Update an existing experience{% else %}Add a new experience{% endif %}</p>
+                <h2>{% if is_editing %}Edit Experience{% else %}Add Experience{% endif %}</h2>
+            </div>
+
+            <form method="post" class="skill-form">
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% for error in field.errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+
+                <div class="skill-form-actions">
+                    <button type="submit" class="button">
+                        {% if is_editing %}Save Changes{% else %}Add Experience{% endif %}
+                    </button>
+
+                    <a href="{% url 'main:show_experience' %}" class="button button-secondary">
+                        Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </section>
+</main>
+{% endblock content %}
