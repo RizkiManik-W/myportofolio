@@ -284,6 +284,41 @@ button.button:hover {
     align-self: flex-start;
 }
 
+.skill-card .skill-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.skill-card .skill-actions a.button,
+.skill-card .skill-actions a.button.button-secondary,
+.skill-card .skill-actions button.button,
+.skill-card .skill-actions form button.button,
+.skill-card .skill-actions form button.button-danger {
+    display: inline-flex;
+    min-height: 0;
+    height: 1.7rem;
+    padding: 0.2rem 0.62rem;
+    margin-top: 0;
+    font-size: 0.72rem;
+    line-height: 1.15;
+    border-radius: 0.5rem;
+}
+
+.skill-card .skill-actions form {
+    margin: 0;
+}
+
+.skill-card .skill-actions a.button.button-secondary {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(199, 206, 208, 0.22);
+    color: var(--text-secondary);
+    box-shadow: none;
+}
+
 .project-search {
     display: flex;
     align-items: center;
