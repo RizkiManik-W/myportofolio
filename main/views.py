@@ -54,6 +54,24 @@ def create_skill(request):
     context = {
         "name": "Rizki",
         "form": form,
+        "is_editing": False,
+    }
+    return render(request, "skills_form.html", context)
+
+
+def update_skill(request, skill_id):
+    skill = get_object_or_404(Skill, pk=skill_id)
+    form = SkillForm(request.POST or None, instance=skill)
+
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Skill updated successfully.")
+        return redirect("main:show_skills")
+
+    context = {
+        "name": "Rizki",
+        "form": form,
+        "is_editing": True,
     }
     return render(request, "skills_form.html", context)
 

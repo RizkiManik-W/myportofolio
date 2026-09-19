@@ -85,3 +85,30 @@ class MainTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Belum ada skill yang ditambahkan.")
+
+    def test_update_skill_form_updates_existing_skill(self):
+        skill = Skill.objects.create(
+            title="Python",
+            description="Programming language for backend work.",
+            category="programming",
+            proficiency="Advanced",
+            order=1,
+        )
+
+        response = self.client.post(
+            reverse("main:update_skill", args=[skill.pk]),
+            {
+                "title": "Python & Django",
+                "description": "Updated backend and web development skill.",
+                "category": "web",
+                "proficiency": "Expert",
+                "order": 2,
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        skill.refresh_from_db()
+        self.assertEqual(skill.title, "Python & Django")
+        self.assertEqual(skill.category, "web")
+        self.assertEqual(skill.proficiency, "Expert")
+        self.assertEqual(skill.order, 2)

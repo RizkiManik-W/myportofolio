@@ -34,10 +34,13 @@
                                     <p class="skill-proficiency">{{ skill.proficiency }}</p>
                                 {% endif %}
                             </div>
-                            <form method="post" action="{% url 'main:delete_skill' skill.id %}">
-                                {% csrf_token %}
-                                <button type="submit" class="button button-danger">Delete</button>
-                            </form>
+                            <div class="skill-actions">
+                                <a href="{% url 'main:update_skill' skill.id %}" class="button button-secondary">Edit</a>
+                                <form method="post" action="{% url 'main:delete_skill' skill.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-danger">Delete</button>
+                                </form>
+                            </div>
                         </article>
                     {% empty %}
                         {% if title_query %}
