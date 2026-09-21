@@ -41,6 +41,14 @@ class MainTest(TestCase):
         self.assertContains(response, "Part-Time")
         self.assertContains(response, "Sedang berlangsung")
         self.assertContains(response, f'href="{reverse("main:show_main")}"')
+        self.assertContains(
+            response,
+            f'href="{reverse("main:update_experience", args=[self.experience.pk])}"',
+        )
+        self.assertContains(
+            response,
+            f'action="{reverse("main:delete_experience", args=[self.experience.pk])}"',
+        )
 
     def test_empty_experience_page(self):
         Experience.objects.all().delete()
@@ -104,6 +112,22 @@ class MainTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertFalse(Experience.objects.filter(pk=self.experience.pk).exists())
+
+    def test_update_experience_form_updates_existing_experience(self):
+        response = self.client.post(
+            reverse("main:update_experience", args=[self.experience.pk]),
+            {
+                "title": "Updated PBP Assistant",
+                "description": "Updated experience description.",
+                "category": "research",
+                "thumbnail": "",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.experience.refresh_from_db()
+        self.assertEqual(self.experience.title, "Updated PBP Assistant")
+        self.assertEqual(self.experience.category, "research")
 
     def test_update_skill_form_updates_existing_skill(self):
         skill = Skill.objects.create(
