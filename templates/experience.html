@@ -13,8 +13,14 @@
                         <p class="section-kicker">My journey so far</p>
                         <h2>Experience</h2>
                     </div>
-                    <a href="{% url 'main:create_experience' %}" class="button">Add Experience</a>
+                    {% if user.is_authenticated and user.is_superuser %}
+                        <a href="{% url 'main:create_experience' %}" class="button">Add Experience</a>
+                    {% endif %}
                 </div>
+
+                {% if request.COOKIES.last_login %}
+                    <p class="last-login">Sesi terakhir login: {{ request.COOKIES.last_login }}</p>
+                {% endif %}
 
                 <form method="get" action="{% url 'main:show_experience' %}" class="project-search">
                     <input type="search" name="title" value="{{ title_query }}" placeholder="Search experience" class="project-search__input">
@@ -38,13 +44,15 @@
                                 <p class="experience-status">Selesai</p>
                             {% endif %}
 
-                            <div class="experience-actions">
-                                <form method="post" action="{% url 'main:delete_experience' experience.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="button button-danger">Delete</button>
-                                </form>
-                                <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary">Edit</a>
-                            </div>
+                            {% if user.is_authenticated and user.is_superuser %}
+                                <div class="experience-actions">
+                                    <form method="post" action="{% url 'main:delete_experience' experience.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="button button-danger">Delete</button>
+                                    </form>
+                                    <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary">Edit</a>
+                                </div>
+                            {% endif %}
                         </article>
                     {% empty %}
                         <p class="empty-state">

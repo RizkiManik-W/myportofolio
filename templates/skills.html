@@ -14,8 +14,14 @@
                         <p class="section-kicker">What I enjoy building</p>
                         <h2>Skills &amp; interests</h2>
                     </div>
-                    <a href="{% url 'main:create_skill' %}" class="button">Add Skill</a>
+                    {% if user.is_authenticated and user.is_superuser %}
+                        <a href="{% url 'main:create_skill' %}" class="button">Add Skill</a>
+                    {% endif %}
                 </div>
+
+                {% if request.COOKIES.last_login %}
+                    <p class="last-login">Sesi terakhir login: {{ request.COOKIES.last_login }}</p>
+                {% endif %}
 
                 <form method="get" action="{% url 'main:show_skills' %}" class="project-search">
                     <input type="search" name="title" value="{{ title_query }}" placeholder="Search skills" class="project-search__input">
@@ -34,13 +40,15 @@
                                     <p class="skill-proficiency">{{ skill.proficiency }}</p>
                                 {% endif %}
                             </div>
-                            <div class="skill-actions">
-                                <form method="post" action="{% url 'main:delete_skill' skill.id %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="button button-danger">Delete</button>
-                                </form>
-                                <a href="{% url 'main:update_skill' skill.id %}" class="button button-secondary">Edit</a>
-                            </div>
+                            {% if user.is_authenticated and user.is_superuser %}
+                                <div class="skill-actions">
+                                    <form method="post" action="{% url 'main:delete_skill' skill.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="button button-danger">Delete</button>
+                                    </form>
+                                    <a href="{% url 'main:update_skill' skill.id %}" class="button button-secondary">Edit</a>
+                                </div>
+                            {% endif %}
                         </article>
                     {% empty %}
                         {% if title_query %}
