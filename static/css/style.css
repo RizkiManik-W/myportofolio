@@ -731,6 +731,40 @@ button.button:hover {
     align-self: flex-start;
 }
 
+.activity-log-list {
+    display: grid;
+    gap: 0.75rem;
+}
+
+.activity-log-entry {
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--cyan-bright);
+    border-radius: var(--radius);
+    background: linear-gradient(145deg, rgba(25, 58, 67, 0.45), rgba(11, 16, 20, 0.9));
+}
+
+.activity-log-entry p {
+    color: var(--text-secondary);
+    overflow-wrap: anywhere;
+}
+
+.activity-log-entry strong {
+    color: var(--text-primary);
+}
+
+.activity-log-entry__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.35rem 1rem;
+    margin-bottom: 0.35rem;
+    color: var(--cyan-light);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
 .skill-form {
     max-width: 700px;
     margin-top: 1.5rem;

@@ -4,11 +4,12 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from main.forms import ExperienceForm, SkillForm
-from main.models import Experience, Skill
+from main.models import ActivityLog, Experience, Skill
 
 
 def _is_editor(user):
@@ -17,6 +18,17 @@ def _is_editor(user):
 
 def _can_edit_portfolio(user):
     return user.is_superuser or _is_editor(user)
+
+
+def _record_activity(user, action, target_type, target):
+    ActivityLog.objects.create(
+        actor=user,
+        actor_username=user.get_username(),
+        action=action,
+        target_type=target_type,
+        target_id=str(target.pk),
+        target_title=target.title,
+    )
 
 
 def register(request):
@@ -101,7 +113,9 @@ def create_experience(request):
     form = ExperienceForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        with transaction.atomic():
+            experience = form.save()
+            _record_activity(request.user, "create", "experience", experience)
         messages.success(request, "Experience added successfully.")
         return redirect("main:show_experience")
 
@@ -122,7 +136,9 @@ def update_experience(request, experience_id):
     form = ExperienceForm(request.POST or None, instance=experience)
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        with transaction.atomic():
+            experience = form.save()
+            _record_activity(request.user, "update", "experience", experience)
         messages.success(request, "Experience updated successfully.")
         return redirect("main:show_experience")
 
@@ -153,6 +169,18 @@ def show_skills(request):
 
 
 @login_required(login_url="/login/")
+def show_activity_log(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    context = {
+        "name": "Rizki",
+        "activity_list": ActivityLog.objects.select_related("actor")[:100],
+    }
+    return render(request, "activity_log.html", context)
+
+
+@login_required(login_url="/login/")
 def toggle_skill_star(request, skill_id):
     skill = get_object_or_404(Skill, pk=skill_id)
 
@@ -173,7 +201,9 @@ def create_skill(request):
     form = SkillForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        with transaction.atomic():
+            skill = form.save()
+            _record_activity(request.user, "create", "skill", skill)
         messages.success(request, "Skill added successfully.")
         return redirect("main:show_skills")
 
@@ -194,7 +224,9 @@ def update_skill(request, skill_id):
     form = SkillForm(request.POST or None, instance=skill)
 
     if request.method == "POST" and form.is_valid():
-        form.save()
+        with transaction.atomic():
+            skill = form.save()
+            _record_activity(request.user, "update", "skill", skill)
         messages.success(request, "Skill updated successfully.")
         return redirect("main:show_skills")
 
@@ -229,7 +261,9 @@ def delete_experience(request, experience_id):
     experience = get_object_or_404(Experience, pk=experience_id)
 
     if request.method == "POST":
-        experience.delete()
+        with transaction.atomic():
+            _record_activity(request.user, "delete", "experience", experience)
+            experience.delete()
         messages.success(request, "Experience deleted successfully.")
 
     return redirect("main:show_experience")
@@ -243,7 +277,9 @@ def delete_skill(request, skill_id):
     skill = get_object_or_404(Skill, pk=skill_id)
 
     if request.method == "POST":
-        skill.delete()
+        with transaction.atomic():
+            _record_activity(request.user, "delete", "skill", skill)
+            skill.delete()
         messages.success(request, "Skill deleted successfully.")
 
     return redirect("main:show_skills")

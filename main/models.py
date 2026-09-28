@@ -59,3 +59,37 @@ class Experience(models.Model):
     @property
     def is_ongoing(self):
         return self.ended_at is None
+
+
+class ActivityLog(models.Model):
+    ACTION_CHOICES = [
+        ("create", "Created"),
+        ("update", "Updated"),
+        ("delete", "Deleted"),
+    ]
+    TARGET_CHOICES = [
+        ("skill", "Skill"),
+        ("experience", "Experience"),
+    ]
+
+    actor = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="portfolio_activity_logs",
+    )
+    actor_username = models.CharField(max_length=150)
+    action = models.CharField(max_length=10, choices=ACTION_CHOICES)
+    target_type = models.CharField(max_length=20, choices=TARGET_CHOICES)
+    target_id = models.CharField(max_length=64)
+    target_title = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "portfolio activity"
+        verbose_name_plural = "portfolio activity"
+
+    def __str__(self):
+        return f"{self.actor_username} {self.get_action_display().lower()} {self.target_title}"

@@ -26,6 +26,9 @@
                 <a href="{% url 'main:show_main' %}">Profile</a>
                 <a href="{% url 'main:show_skills' %}">Skills</a>
                 <a href="{% url 'main:show_experience' %}">Experience</a>
+                {% if user.is_superuser %}
+                    <a href="{% url 'main:show_activity_log' %}">Activity</a>
+                {% endif %}
 
                 {% if user.is_authenticated %}
                     <span class="nav-user">{{ user.username }}</span>

@@ -1,5 +1,11 @@
 /.gitattributes text eol=lf
 /README.md text eol=lf
 /main/views.py text eol=lf
+/main/models.py text eol=lf
+/main/urls.py text eol=lf
+/main/migrations/0006_activitylog.py text eol=lf
+/static/css/style.css text eol=lf
+/templates/base.html text eol=lf
+/templates/activity_log.html text eol=lf
 /templates/experience.html text eol=lf
 /templates/skills.html text eol=lf

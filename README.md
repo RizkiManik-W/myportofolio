@@ -80,6 +80,8 @@ Portfolio pages remain readable without login. Signed-in users can star skills. 
 
 To enable the editor role, sign in to `/admin`, create a group named `Editor`, and add the intended user to that group. The skills JSON endpoint is available at `/api/skills/` and does not return passwords or other account credentials.
 
+Superusers can review the 100 most recent Skill and Experience changes at `/activity/`. Each entry records the actor, action, item title, and timestamp; the activity record is written in the same transaction as the portfolio change.
+
 The `Skill.starred_by` relationship is included in the project migrations. Apply pending migrations before running the app:
 
 ```bash
@@ -98,7 +100,7 @@ AI assistance reference: https://chatgpt.com/share/6a9ec111-2468-83ec-855e-b0f64
 
 - Tool: ChatGPT (OpenAI).
 - Prompting approach: compare the assignment checklist with the existing Django project, then implement related gaps in small, reviewable batches.
-- AI-assisted changes: Editor group authorization in views, role-specific action controls in templates, and this assignment's README notes.
+- AI-assisted changes: Editor group authorization, the activity log model and view, role-specific action controls in templates, and this assignment's README notes.
 - Review: changes were checked with `git diff --check` and a manual diff review; application tests were not run in this session.
 
 ### Tugas 1

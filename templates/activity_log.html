@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block meta %}
+    <title>Activity Log - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+    <main>
+        <section class="experience-section">
+            <div class="container">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Portfolio history</p>
+                        <h2>Activity log</h2>
+                    </div>
+                </div>
+
+                <div class="activity-log-list">
+                    {% for activity in activity_list %}
+                        <article class="activity-log-entry">
+                            <div class="activity-log-entry__meta">
+                                <span>{{ activity.get_action_display }} {{ activity.get_target_type_display }}</span>
+                                <time datetime="{{ activity.created_at|date:'c' }}">
+                                    {{ activity.created_at|date:"Y-m-d H:i" }}
+                                </time>
+                            </div>
+                            <p>
+                                <strong>{{ activity.actor_username }}</strong>
+                                {{ activity.get_action_display|lower }}
+                                {{ activity.get_target_type_display|lower }}
+                                <strong>{{ activity.target_title }}</strong>
+                            </p>
+                        </article>
+                    {% empty %}
+                        <p class="empty-state">No portfolio activity has been recorded yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    </main>
+{% endblock content %}
