@@ -50,11 +50,13 @@
                                         </button>
                                     </form>
                                 {% endif %}
-                                {% if user.is_authenticated and user.is_superuser %}
-                                    <form method="post" action="{% url 'main:delete_skill' skill.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="button button-danger">Delete</button>
-                                    </form>
+                                {% if can_edit %}
+                                    {% if user.is_superuser %}
+                                        <form method="post" action="{% url 'main:delete_skill' skill.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="button button-danger">Delete</button>
+                                        </form>
+                                    {% endif %}
                                     <a href="{% url 'main:update_skill' skill.id %}" class="button button-secondary">Edit</a>
                                 {% endif %}
                             </div>

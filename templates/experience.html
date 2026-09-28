@@ -44,12 +44,14 @@
                                 <p class="experience-status">Selesai</p>
                             {% endif %}
 
-                            {% if user.is_authenticated and user.is_superuser %}
+                            {% if can_edit %}
                                 <div class="experience-actions">
-                                    <form method="post" action="{% url 'main:delete_experience' experience.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="button button-danger">Delete</button>
-                                    </form>
+                                    {% if user.is_superuser %}
+                                        <form method="post" action="{% url 'main:delete_experience' experience.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="button button-danger">Delete</button>
+                                        </form>
+                                    {% endif %}
                                     <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary">Edit</a>
                                 </div>
                             {% endif %}

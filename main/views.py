@@ -10,6 +10,15 @@ from django.shortcuts import get_object_or_404, redirect, render
 from main.forms import ExperienceForm, SkillForm
 from main.models import Experience, Skill
 
+
+def _is_editor(user):
+    return user.is_authenticated and user.groups.filter(name="Editor").exists()
+
+
+def _can_edit_portfolio(user):
+    return user.is_superuser or _is_editor(user)
+
+
 def register(request):
     form = UserCreationForm(request.POST or None)
 
@@ -79,6 +88,7 @@ def show_experience(request):
         "name": "Rizki",
         "experience_list": experience_list,
         "title_query": title_query,
+        "can_edit": _can_edit_portfolio(request.user),
     }
     return render(request, "experience.html", context)
 
@@ -105,7 +115,7 @@ def create_experience(request):
 
 @login_required(login_url="/login/")
 def update_experience(request, experience_id):
-    if not request.user.is_superuser:
+    if not _can_edit_portfolio(request.user):
         raise PermissionDenied
 
     experience = get_object_or_404(Experience, pk=experience_id)
@@ -137,6 +147,7 @@ def show_skills(request):
         "name": "Rizki",
         "skills_list": skills,
         "title_query": request.GET.get("title", "").strip(),
+        "can_edit": _can_edit_portfolio(request.user),
     }
     return render(request, "skills.html", context)
 
@@ -176,7 +187,7 @@ def create_skill(request):
 
 @login_required(login_url="/login/")
 def update_skill(request, skill_id):
-    if not request.user.is_superuser:
+    if not _can_edit_portfolio(request.user):
         raise PermissionDenied
 
     skill = get_object_or_404(Skill, pk=skill_id)

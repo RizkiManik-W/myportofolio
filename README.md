@@ -74,15 +74,32 @@ myportofolio/
 └── db.sqlite3
 ```
 
+## Individual Assignment 4: Authentication and Authorization
+
+Portfolio pages remain readable without login. Signed-in users can star skills. Users in the `Editor` group can edit skills and experiences, while only superusers can add or delete them.
+
+To enable the editor role, sign in to `/admin`, create a group named `Editor`, and add the intended user to that group. The skills JSON endpoint is available at `/api/skills/` and does not return passwords or other account credentials.
+
+The `Skill.starred_by` relationship is included in the project migrations. Apply pending migrations before running the app:
+
+```bash
+python manage.py migrate
+```
+
 ## Notes
 This is a learning project, so feel free to explore, modify, and improve it, hehe~. 
 
 ## AI Disclosure
-Proyek ini menggunakan bantuan AI untuk membantu saya memahami apa yang harus saya lakukan ketika ingin mengubah sesuatu, mempratikkan bagaimana implementasi sebuah fitur harus dilakuakn, melakukan strukturisasi, yang dimana awalnya code CSS saya sangat berantakan. Selain itu saran juga merupakan hal yang saya dapat dari AI, seperti apa yang harusnya saya tunjukkan, dan bagaimana harus direpresentasikan. 
-
-File test pada main juga dibantu oleh AI, sehingga ketika pembuatan test tidak terjadi bias.
+Saya menggunakan ChatGPT (OpenAI) untuk memahami instruksi tugas, membandingkannya dengan kode proyek, dan merencanakan implementasi secara bertahap. Untuk tugas ini, bantuan AI digunakan untuk menulis dan meninjau perubahan pada view, template, dan dokumentasi. Saya meninjau perubahan kode sebelum menggunakannya. Bantuan AI sebelumnya juga digunakan untuk memahami refactoring CSS dan menyusun tes pada aplikasi.
 
 AI assistance reference: https://chatgpt.com/share/6a9ec111-2468-83ec-855e-b0f64a787498
+
+### AI Assistance Log: Individual Assignment 4
+
+- Tool: ChatGPT (OpenAI).
+- Prompting approach: compare the assignment checklist with the existing Django project, then implement related gaps in small, reviewable batches.
+- AI-assisted changes: Editor group authorization in views, role-specific action controls in templates, and this assignment's README notes.
+- Review: changes were checked with `git diff --check` and a manual diff review; application tests were not run in this session.
 
 ### Tugas 1
 1. Ya, saya menggunakan semantik elemenet HTML5 seperti `section`, `article`, dan `aside`, ini saya gunakan untuk mengorganisir struktur portofolio saya supaya lebih bersih dan nyaman dilihat. Elemen-elemen ini membantu saya membuat website statik karena setiap bagian memiliki tujuannya masing-masing, seperti contoh section  hero untuk identitas saya, section skills and experience, dan aside untuk informasi tambahan yang saya ingin tunjukkan. Dengan struktur semantik, website yang saya buat terasa lebih terorganisir dan yang paling penting adalah kemudahan untuk menambahkan fitur ataupun konten baru yang ingin saya tambahkan kedepannya. 
