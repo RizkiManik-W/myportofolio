@@ -125,3 +125,12 @@ Di tugas ini, saya menambahkan fungsionalitas CRUD untuk data portofolio di Djan
 2. JSON lebih bagus daripada XML di modern web development karena lebih  jelas, lebih mudah dibaca dan lebih cepat untuk diproses. JSON juga memimiliki sturktur yang lebih simpel and lebih kompatibel dengan javaScripts, membuatnya lebih ideal untuk aplikasi web, API, dan komunikasi frontend-backend. XML lebih sulit dimengerti dan sulit untuk diproses, jadi JSON lebih efisien di aplikasi modern. 
 
 3. Ketika view mengembalikan data portofolio dalam format JSON, requestnya pertama akan masuk ke URL yang sesuai dan diproses oleh view. View kemudian mengembalikan data dari model Django menggunakan ORM, dan melakukan serialisasi sehingga objek model dikonversi menjadi format JSON yang dapat dikirm ke client. Serialisasi pengin karena model objek Django merupakan objek python, bukan data biasa yang browsers atau aplikasi frontend biasa gunakan. Setelah serialisasi, respon kemudian di kirim menggunakan `HttpResponse` atau `JsonResponse`, sehingga client dapat menerima data yang konsisten.
+
+### Task 4
+Di tugas ini, saya melanjutkan fitur authentication dan authorization pada page skills dan experience. Page protofolio tetap mudah dibaca tanpa perlu login. User yang Singed-in dapat menambah atau menghapus stars pada skill. Saya menggunakan grup Django bernama `Editor` untuk mengijinkan editor untuk mengupdate data portofolio, hanya superuser yang dapat menambahkan atau menghapus.
+
+For this assignment, I extended authentication and authorization to the Skills and Experience sections. Portfolio pages remain readable without logging in. Signed-in users can add or remove stars on skills. I used a Django group named `Editor` to allow editors to update portfolio data, while only superusers can add or delete it. Pemeriksaan akses diterapkan pada tampilan, dan beberapa tombol disembunyikan dari pengguna yang tidak diizinkan menggunakannya.
+
+Saya juga menabhakn fitur tambahan yaitu riwayat aktifitas. Untuk setiap pembuatan, udpate, atau penghapusan skill ataupun experience akan merekam username, action, item tittle, dan timestamp. Riwayat akan disimpah di dalam tempat yang sama di perubahan portofolio dan hanya tersedia untuk superusers di `/activity`. 
+
+/`api/skills/` JSON endpoint tetap tersedia untuk membaca skill data tanpa exposing password atau credentials akun. Untuk menambah role editor pada environment baru, buat grup `Editor` di Django admin dan tambahkan akun yang diinginkan ke grup tersebut.
