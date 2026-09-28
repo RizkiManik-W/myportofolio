@@ -40,6 +40,13 @@
                                     <p class="skill-proficiency">{{ skill.proficiency }}</p>
                                 {% endif %}
                             </div>
+                                <form method="post" action="{% url 'main:toggle_skill_star' skill.id %}" class="skill-star-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-secondary{% if user in skill.starred_by.all %} is-starred{% endif %}">
+                                        {% if user in skill.starred_by.all %}Unstar{% else %}Star{% endif %}
+                                        <span>{{ skill.starred_by.count }}</span>
+                                    </button>
+                                </form>
                             {% if user.is_authenticated and user.is_superuser %}
                                 <div class="skill-actions">
                                     <form method="post" action="{% url 'main:delete_skill' skill.id %}">

@@ -1,5 +1,6 @@
 import uuid
 
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -24,6 +25,7 @@ class Skill(models.Model):
     )
     proficiency = models.CharField(max_length=255, blank=True, default="")
     order = models.PositiveIntegerField(default=1)
+    starred_by = models.ManyToManyField(User, blank=True, related_name="starred_skills")
 
     def __str__(self):
         return self.title

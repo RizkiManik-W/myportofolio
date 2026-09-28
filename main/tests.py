@@ -1,12 +1,18 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
+from django.contrib.auth.models import User
 
 from main.models import Experience, Skill
 
 
 class MainTest(TestCase):
     def setUp(self):
+        self.admin = User.objects.create_superuser(
+            username="admin",
+            password="test-password",
+        )
+        self.client.force_login(self.admin)
         self.experience = Experience.objects.create(
             title="Asisten Dosen PBP",
             description="Membantu mahasiswa memahami pengembangan web.",
@@ -155,3 +161,20 @@ class MainTest(TestCase):
         self.assertEqual(skill.category, "web")
         self.assertEqual(skill.proficiency, "Expert")
         self.assertEqual(skill.order, 2)
+
+    def test_authenticated_user_can_toggle_skill_star(self):
+        skill = Skill.objects.create(
+            title="Python",
+            description="Programming language for backend work.",
+            category="programming",
+            order=1,
+        )
+
+        star_url = reverse("main:toggle_skill_star", args=[skill.pk])
+
+        response = self.client.post(star_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(skill.starred_by.filter(pk=self.admin.pk).exists())
+
+        self.client.post(star_url)
+        self.assertFalse(skill.starred_by.filter(pk=self.admin.pk).exists())

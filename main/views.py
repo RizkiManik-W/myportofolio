@@ -136,6 +136,20 @@ def show_skills(request):
     }
     return render(request, "skills.html", context)
 
+
+@login_required(login_url="/login/")
+def toggle_skill_star(request, skill_id):
+    skill = get_object_or_404(Skill, pk=skill_id)
+
+    if request.method == "POST":
+        if request.user in skill.starred_by.all():
+            skill.starred_by.remove(request.user)
+        else:
+            skill.starred_by.add(request.user)
+
+    return redirect("main:show_skills")
+
+
 @login_required(login_url="/login/")
 def create_skill(request):
     if not request.user.is_superuser:
