@@ -178,3 +178,17 @@ class MainTest(TestCase):
 
         self.client.post(star_url)
         self.assertFalse(skill.starred_by.filter(pk=self.admin.pk).exists())
+
+    def test_skills_api_uses_username_for_starred_user(self):
+        skill = Skill.objects.create(
+            title="Python",
+            description="Programming language for backend work.",
+            category="programming",
+            order=1,
+        )
+        skill.starred_by.add(self.admin)
+
+        response = self.client.get(reverse("main:get_skills_json"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"starred_by": [["admin"]]')
