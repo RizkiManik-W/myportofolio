@@ -57,6 +57,10 @@ def show_main(request):
         "name": "Rizki",
         "npm": "250662100",
         "study_program": "S1 Ilmu Komputer",
+        "last_login": request.COOKIES.get(
+            "last_login",
+            "Belum ada sesi login / Cookie tidak ditemukan",
+        ),
         "bio": (
             "CS student at Universitas Indonesia, i love fun things that require creative thingking. Passionate about competitive programming, game development, and writting. I enjoy solving challanging problems, designing strategy-driven games, and all things thats related to creativity such as writting."
         ),
