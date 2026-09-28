@@ -9,6 +9,10 @@
         <section class="experience-section">
             <div class="container">
                 <h1>Login</h1>
+                {% for message in messages %}
+                    <p class="form-message">{{ message }}</p>
+                {% endfor %}
+
                 <form method="post" action="{% url 'main:login' %}" class="project-form">
                     {% csrf_token %}
                     {% for error in form.non_field_errors %}
