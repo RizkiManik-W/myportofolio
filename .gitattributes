@@ -7,5 +7,6 @@
 /static/css/style.css text eol=lf
 /templates/base.html text eol=lf
 /templates/activity_log.html text eol=lf
+/templates/index.html text eol=lf
 /templates/experience.html text eol=lf
 /templates/skills.html text eol=lf
