@@ -296,6 +296,7 @@ button.button:hover {
 .skill-card .skill-actions a.button,
 .skill-card .skill-actions a.button.button-secondary,
 .skill-card .skill-actions button.button,
+.skill-card .skill-actions .skill-star-form button.button,
 .skill-card .skill-actions form button.button,
 .skill-card .skill-actions form button.button-danger {
     display: inline-flex;
@@ -310,6 +311,19 @@ button.button:hover {
 
 .skill-card .skill-actions form {
     margin: 0;
+}
+
+.skill-card .skill-actions .skill-star-form button.button {
+    background: rgba(255, 255, 255, 0.02);
+    border-color: rgba(199, 206, 208, 0.22);
+    color: var(--text-secondary);
+    box-shadow: none;
+}
+
+.skill-card .skill-actions .skill-star-form button.button.is-starred {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ink);
 }
 
 .skill-card .skill-actions a.button.button-secondary {
