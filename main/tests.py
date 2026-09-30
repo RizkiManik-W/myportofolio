@@ -90,7 +90,7 @@ class MainTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "skills.html")
 
-    def test_skill_model_data_appears_in_skills_page_html(self):
+    def test_skill_model_data_is_available_to_ajax_skill_list(self):
         skill = Skill.objects.create(
             title="Competitive Programming",
             description="Solving algorithmic problems for fun.",
@@ -100,18 +100,28 @@ class MainTest(TestCase):
 
         self.assertEqual(str(skill), "Competitive Programming")
 
-        response = self.client.get(reverse("main:show_skills"))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, skill.title)
-        self.assertContains(response, skill.description)
+        page_response = self.client.get(reverse("main:show_skills"))
+        self.assertEqual(page_response.status_code, 200)
+        self.assertContains(page_response, 'id="skills-grid"')
+        self.assertContains(page_response, "/static/js/skills.js")
+        self.assertNotContains(page_response, skill.title)
 
-    def test_empty_skills_page_shows_empty_message(self):
+        api_response = self.client.get(reverse("main:get_skills_json"))
+        self.assertEqual(api_response.status_code, 200)
+        self.assertEqual(api_response.json()[0]["fields"]["title"], skill.title)
+        self.assertEqual(api_response.json()[0]["fields"]["description"], skill.description)
+
+    def test_empty_skills_page_uses_ajax_grid_and_empty_api_response(self):
         Skill.objects.all().delete()
 
-        response = self.client.get(reverse("main:show_skills"))
+        page_response = self.client.get(reverse("main:show_skills"))
+        self.assertEqual(page_response.status_code, 200)
+        self.assertContains(page_response, 'id="skills-grid"')
+        self.assertNotContains(page_response, "Belum ada skill yang ditambahkan.")
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Belum ada skill yang ditambahkan.")
+        api_response = self.client.get(reverse("main:get_skills_json"))
+        self.assertEqual(api_response.status_code, 200)
+        self.assertEqual(api_response.json(), [])
 
     def test_delete_experience_removes_existing_experience(self):
         response = self.client.post(reverse("main:delete_experience", args=[self.experience.pk]))
