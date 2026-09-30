@@ -821,15 +821,26 @@ button.button:hover {
 }
 
 .skill-dialog {
-    width: min(700px, calc(100vw - 2rem));
+    position: fixed;
+    inset: 50% auto auto 50%;
+    transform: translate(-50%, -50%);
+    width: min(42rem, calc(100vw - 2rem));
     box-sizing: border-box;
-    max-height: calc(100vh - 2rem);
-    padding: 1.5rem;
+    max-height: min(85vh, 48rem);
+    margin: 0;
+    padding: 1.25rem;
     overflow-y: auto;
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    background: var(--bg-primary);
+    overscroll-behavior: contain;
+    border: 1px solid rgba(112, 215, 228, 0.32);
+    border-radius: 1rem;
+    background: linear-gradient(155deg, #101b1f 0%, var(--bg-primary) 42%);
     color: var(--text-primary);
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.72), inset 0 1px rgba(255, 255, 255, 0.035);
+    scrollbar-width: none;
+}
+
+.skill-dialog::-webkit-scrollbar {
+    display: none;
 }
 
 .skill-dialog::backdrop {
@@ -839,7 +850,11 @@ button.button:hover {
 
 .skill-dialog .skill-form {
     max-width: none;
-    margin-top: 1rem;
+    margin-top: 0.75rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .skill-dialog__heading {
@@ -847,6 +862,9 @@ button.button:hover {
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
 }
 
 .skill-dialog__heading h2 {
