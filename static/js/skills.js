@@ -19,9 +19,6 @@ async function loadSkills() {
         skills.forEach((skill, index) => {
             const card = skillTemplate.content.firstElementChild.cloneNode(true);
             const fields = skill.fields;
-            const starred = fields.starred_by.some(
-                (username) => username[0] === window.currentSkillUsername
-            );
 
             card.querySelector(".skill-number").textContent = String(index + 1).padStart(2, "0");
             card.querySelector(".skill-type").textContent = skillCategoryLabels.get(fields.category) || fields.category;
@@ -37,9 +34,9 @@ async function loadSkills() {
 
             const starButton = card.querySelector(".skill-star-form button");
             if (starButton) {
-                starButton.classList.toggle("is-starred", starred);
-                card.querySelector(".star-label").textContent = starred ? "Starred" : "Star";
-                card.querySelector(".star-count").textContent = fields.starred_by.length;
+                starButton.classList.toggle("is-starred", fields.is_starred);
+                card.querySelector(".star-label").textContent = fields.is_starred ? "Starred" : "Star";
+                card.querySelector(".star-count").textContent = fields.star_count;
             }
 
             card.querySelectorAll("[action], [href]").forEach((element) => {

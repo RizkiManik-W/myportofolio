@@ -2,10 +2,9 @@ from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from main.forms import ExperienceForm, SkillForm
@@ -151,19 +150,16 @@ def update_experience(request, experience_id):
 
 
 def show_skills(request):
-    json_response = get_skills_json(request)
-
-    skills = serializers.deserialize(
-        "json",
-        json_response.content.decode("utf-8"),
-    )
-    skills = [skill.object for skill in skills]
+    title_query = request.GET.get("title", "").strip()
+    skills = Skill.objects.prefetch_related("starred_by").order_by("order")
+    if title_query:
+        skills = skills.filter(title__icontains=title_query)
 
     context = {
         "name": "Rizki",
         "skills_list": skills,
         "skill_categories": Skill.SKILL_TYPES,
-        "title_query": request.GET.get("title", "").strip(),
+        "title_query": title_query,
         "can_edit": _can_edit_portfolio(request.user),
     }
     return render(request, "skills.html", context)
@@ -241,17 +237,32 @@ def update_skill(request, skill_id):
 
 def get_skills_json(request):
     title_query = request.GET.get("title", "").strip()
-    skills = Skill.objects.order_by("order")
+    skills = Skill.objects.prefetch_related("starred_by").order_by("order")
 
     if title_query:
         skills = skills.filter(title__icontains=title_query)
 
-    skills_json = serializers.serialize(
-        "json",
-        skills,
-        use_natural_foreign_keys=True,
-    )
-    return HttpResponse(skills_json, content_type="application/json")
+    data = []
+    for skill in skills:
+        starred_users = list(skill.starred_by.all())
+        data.append({
+            "pk": str(skill.pk),
+            "fields": {
+                "title": skill.title,
+                "description": skill.description,
+                "category": skill.category,
+                "proficiency": skill.proficiency,
+                "order": skill.order,
+                "star_count": len(starred_users),
+                "is_starred": request.user.is_authenticated and any(
+                    user.pk == request.user.pk for user in starred_users
+                ),
+                "starred_by_names": ", ".join(user.username for user in starred_users),
+                "starred_by": [[user.username] for user in starred_users],
+            },
+        })
+
+    return JsonResponse(data, safe=False)
 
 
 @login_required(login_url="/login/")
