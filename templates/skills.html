@@ -28,47 +28,7 @@
                     <button type="submit" class="button">Search</button>
                 </form>
 
-                <div class="skills-grid" id="skills-grid" data-api-url="{% url 'main:get_skills_json' %}">
-                    {% for skill in skills_list %}
-                        <article class="skill-card">
-                            <span class="skill-number">{{ forloop.counter|stringformat:"02d" }}</span>
-                            <span class="skill-type">{{ skill.get_category_display }}</span>
-                            <div>
-                                <h3>{{ skill.title }}</h3>
-                                <p>{{ skill.description }}</p>
-                                {% if skill.proficiency %}
-                                    <p class="skill-proficiency">{{ skill.proficiency }}</p>
-                                {% endif %}
-                            </div>
-                            <div class="skill-actions">
-                                {% if user.is_authenticated %}
-                                    <form method="post" action="{% url 'main:toggle_skill_star' skill.id %}" class="skill-star-form">
-                                        {% csrf_token %}
-                                        <button type="submit" class="button button-secondary{% if user in skill.starred_by.all %} is-starred{% endif %}">
-                                            {% if user in skill.starred_by.all %}Starred{% else %}Star{% endif %}
-                                            <span>{{ skill.starred_by.count }}</span>
-                                        </button>
-                                    </form>
-                                {% endif %}
-                                {% if can_edit %}
-                                    {% if user.is_superuser %}
-                                        <form method="post" action="{% url 'main:delete_skill' skill.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="button button-danger">Delete</button>
-                                        </form>
-                                    {% endif %}
-                                    <a href="{% url 'main:update_skill' skill.id %}" class="button button-secondary">Edit</a>
-                                {% endif %}
-                            </div>
-                        </article>
-                    {% empty %}
-                        {% if title_query %}
-                            <p class="empty-state">No skills found with that name.</p>
-                        {% else %}
-                            <p class="empty-state">Belum ada skill yang ditambahkan.</p>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+                <div class="skills-grid" id="skills-grid" data-api-url="{% url 'main:get_skills_json' %}" aria-live="polite" aria-busy="true"></div>
 
                 {{ skill_categories|json_script:"skill-categories" }}
                 <template id="skill-card-template">

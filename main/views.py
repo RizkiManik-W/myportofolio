@@ -151,13 +151,8 @@ def update_experience(request, experience_id):
 
 def show_skills(request):
     title_query = request.GET.get("title", "").strip()
-    skills = Skill.objects.prefetch_related("starred_by").order_by("order")
-    if title_query:
-        skills = skills.filter(title__icontains=title_query)
-
     context = {
         "name": "Rizki",
-        "skills_list": skills,
         "skill_form": SkillForm(),
         "skill_categories": Skill.SKILL_TYPES,
         "title_query": title_query,

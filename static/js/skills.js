@@ -61,9 +61,12 @@ async function loadSkills(searchTitle = skillSearchInput.value.trim()) {
         }
 
         skillGrid.replaceChildren(cards);
+        skillGrid.setAttribute("aria-busy", "false");
     } catch (error) {
         if (error.name !== "AbortError") {
-            showToast("Could not refresh skills", "The existing list is still available.", "error");
+            skillGrid.setAttribute("aria-busy", "false");
+            skillGrid.textContent = "Skills could not be loaded. Please try again.";
+            showToast("Could not load skills", "Please try again in a moment.", "error");
         }
     }
 }
