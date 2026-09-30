@@ -6,6 +6,7 @@
 /main/migrations/0006_activitylog.py text eol=lf
 /static/css/style.css text eol=lf
 /static/js/toast.js text eol=lf
+/static/js/skills.js text eol=lf
 /templates/base.html text eol=lf
 /templates/components/toast.html text eol=lf
 /templates/activity_log.html text eol=lf

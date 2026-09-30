@@ -28,7 +28,7 @@
                     <button type="submit" class="button">Search</button>
                 </form>
 
-                <div class="skills-grid">
+                <div class="skills-grid" id="skills-grid" data-api-url="{% url 'main:get_skills_json' %}">
                     {% for skill in skills_list %}
                         <article class="skill-card">
                             <span class="skill-number">{{ forloop.counter|stringformat:"02d" }}</span>
@@ -69,6 +69,41 @@
                         {% endif %}
                     {% endfor %}
                 </div>
+
+                {{ skill_categories|json_script:"skill-categories" }}
+                <template id="skill-card-template">
+                    <article class="skill-card">
+                        <span class="skill-number"></span>
+                        <span class="skill-type"></span>
+                        <div>
+                            <h3></h3>
+                            <p class="skill-description"></p>
+                            <p class="skill-proficiency"></p>
+                        </div>
+                        <div class="skill-actions">
+                            {% if user.is_authenticated %}
+                                <form method="post" action="{% url 'main:toggle_skill_star' '00000000-0000-0000-0000-000000000000' %}" class="skill-star-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-secondary"><span class="star-label"></span> <span class="star-count"></span></button>
+                                </form>
+                            {% endif %}
+                            {% if can_edit %}
+                                {% if user.is_superuser %}
+                                    <form method="post" action="{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="button button-danger">Delete</button>
+                                    </form>
+                                {% endif %}
+                                <a href="{% url 'main:update_skill' '00000000-0000-0000-0000-000000000000' %}" class="button button-secondary">Edit</a>
+                            {% endif %}
+                        </div>
+                    </article>
+                </template>
+                <script>
+                    window.currentSkillUsername = "{{ user.username|escapejs }}";
+                </script>
+                {% load static %}
+                <script src="{% static 'js/skills.js' %}" defer></script>
             </div>
         </section>
     </main>

@@ -162,6 +162,7 @@ def show_skills(request):
     context = {
         "name": "Rizki",
         "skills_list": skills,
+        "skill_categories": Skill.SKILL_TYPES,
         "title_query": request.GET.get("title", "").strip(),
         "can_edit": _can_edit_portfolio(request.user),
     }
