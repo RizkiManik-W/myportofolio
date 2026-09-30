@@ -820,6 +820,39 @@ button.button:hover {
     margin-top: 0.35rem;
 }
 
+.skill-dialog {
+    width: min(700px, calc(100vw - 2rem));
+    box-sizing: border-box;
+    max-height: calc(100vh - 2rem);
+    padding: 1.5rem;
+    overflow-y: auto;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.skill-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(3px);
+}
+
+.skill-dialog .skill-form {
+    max-width: none;
+    margin-top: 1rem;
+}
+
+.skill-dialog__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.skill-dialog__heading h2 {
+    margin: 0;
+}
+
 .toast-component {
     position: fixed;
     inset: auto 1.25rem 1.25rem auto;

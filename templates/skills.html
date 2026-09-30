@@ -15,7 +15,7 @@
                         <h2>Skills &amp; interests</h2>
                     </div>
                     {% if user.is_authenticated and user.is_superuser %}
-                        <a href="{% url 'main:create_skill' %}" class="button">Add Skill</a>
+                        <button type="button" class="button" id="open-skill-dialog">Add Skill</button>
                     {% endif %}
                 </div>
 
@@ -99,6 +99,30 @@
                         </div>
                     </article>
                 </template>
+                {% if user.is_authenticated and user.is_superuser %}
+                    <dialog class="skill-dialog" id="skill-dialog" aria-labelledby="skill-dialog-title">
+                        <div class="skill-dialog__heading">
+                            <h2 id="skill-dialog-title">Add a skill</h2>
+                            <button type="button" class="button button-secondary" id="close-skill-dialog" aria-label="Close dialog">Close</button>
+                        </div>
+                        <form method="post" action="{% url 'main:create_skill' %}" class="skill-form">
+                            {% csrf_token %}
+                            {% for field in skill_form %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% for error in field.errors %}
+                                        <p class="form-error">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                            <div class="skill-form-actions">
+                                <button type="submit" class="button">Add Skill</button>
+                                <button type="button" class="button button-secondary" id="cancel-skill-dialog">Cancel</button>
+                            </div>
+                        </form>
+                    </dialog>
+                {% endif %}
                 {% load static %}
                 <script src="{% static 'js/skills.js' %}" defer></script>
             </div>

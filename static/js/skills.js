@@ -2,6 +2,7 @@ const skillGrid = document.getElementById("skills-grid");
 const skillTemplate = document.getElementById("skill-card-template");
 const skillSearchForm = document.getElementById("skills-search-form");
 const skillSearchInput = document.getElementById("skills-search-input");
+const skillDialog = document.getElementById("skill-dialog");
 const skillCategoryLabels = new Map(
     JSON.parse(document.getElementById("skill-categories").textContent)
 );
@@ -77,5 +78,11 @@ skillSearchForm.addEventListener("submit", (event) => {
     clearTimeout(skillSearchTimer);
     loadSkills();
 });
+
+if (skillDialog) {
+    document.getElementById("open-skill-dialog").addEventListener("click", () => skillDialog.showModal());
+    document.getElementById("close-skill-dialog").addEventListener("click", () => skillDialog.close());
+    document.getElementById("cancel-skill-dialog").addEventListener("click", () => skillDialog.close());
+}
 
 loadSkills();

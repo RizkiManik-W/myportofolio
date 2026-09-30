@@ -158,6 +158,7 @@ def show_skills(request):
     context = {
         "name": "Rizki",
         "skills_list": skills,
+        "skill_form": SkillForm(),
         "skill_categories": Skill.SKILL_TYPES,
         "title_query": title_query,
         "can_edit": _can_edit_portfolio(request.user),
