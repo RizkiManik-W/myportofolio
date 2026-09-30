@@ -1,17 +1,23 @@
 const skillGrid = document.getElementById("skills-grid");
 const skillTemplate = document.getElementById("skill-card-template");
+const skillSearchForm = document.getElementById("skills-search-form");
+const skillSearchInput = document.getElementById("skills-search-input");
 const skillCategoryLabels = new Map(
     JSON.parse(document.getElementById("skill-categories").textContent)
 );
 const skillIdPlaceholder = "00000000-0000-0000-0000-000000000000";
+let skillSearchTimer;
+let currentSkillRequest;
 
-async function loadSkills() {
+async function loadSkills(searchTitle = skillSearchInput.value.trim()) {
+    if (currentSkillRequest) currentSkillRequest.abort();
+    currentSkillRequest = new AbortController();
+
     const url = new URL(skillGrid.dataset.apiUrl, window.location.origin);
-    const searchTitle = new URLSearchParams(window.location.search).get("title");
     if (searchTitle) url.searchParams.set("title", searchTitle);
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: currentSkillRequest.signal });
         if (!response.ok) throw new Error("Could not load skills");
         const skills = await response.json();
         const cards = document.createDocumentFragment();
@@ -55,8 +61,21 @@ async function loadSkills() {
 
         skillGrid.replaceChildren(cards);
     } catch (error) {
-        showToast("Could not refresh skills", "The existing list is still available.", "error");
+        if (error.name !== "AbortError") {
+            showToast("Could not refresh skills", "The existing list is still available.", "error");
+        }
     }
 }
+
+skillSearchInput.addEventListener("input", () => {
+    clearTimeout(skillSearchTimer);
+    skillSearchTimer = setTimeout(() => loadSkills(), 300);
+});
+
+skillSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    clearTimeout(skillSearchTimer);
+    loadSkills();
+});
 
 loadSkills();

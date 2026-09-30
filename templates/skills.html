@@ -23,8 +23,8 @@
                     <p class="last-login">Sesi terakhir login: {{ request.COOKIES.last_login }}</p>
                 {% endif %}
 
-                <form method="get" action="{% url 'main:show_skills' %}" class="project-search">
-                    <input type="search" name="title" value="{{ title_query }}" placeholder="Search skills" class="project-search__input">
+                <form method="get" action="{% url 'main:show_skills' %}" class="project-search" id="skills-search-form">
+                    <input type="search" name="title" id="skills-search-input" value="{{ title_query }}" placeholder="Search skills" class="project-search__input">
                     <button type="submit" class="button">Search</button>
                 </form>
 
