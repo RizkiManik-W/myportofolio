@@ -3,6 +3,7 @@ const skillTemplate = document.getElementById("skill-card-template");
 const skillSearchForm = document.getElementById("skills-search-form");
 const skillSearchInput = document.getElementById("skills-search-input");
 const skillDialog = document.getElementById("skill-dialog");
+const skillCreateForm = document.getElementById("skill-create-form");
 const skillCategoryLabels = new Map(
     JSON.parse(document.getElementById("skill-categories").textContent)
 );
@@ -86,6 +87,57 @@ if (skillDialog) {
     document.getElementById("open-skill-dialog").addEventListener("click", () => skillDialog.showModal());
     document.getElementById("close-skill-dialog").addEventListener("click", () => skillDialog.close());
     document.getElementById("cancel-skill-dialog").addEventListener("click", () => skillDialog.close());
+}
+
+if (skillCreateForm) {
+    skillCreateForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const submitButton = skillCreateForm.querySelector("button[type='submit']");
+        const errorMessages = skillCreateForm.querySelectorAll("[data-error-for]");
+        errorMessages.forEach((element) => {
+            element.textContent = "";
+            element.hidden = true;
+        });
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(skillCreateForm.action, {
+                method: "POST",
+                body: new FormData(skillCreateForm),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                },
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                if (result.errors) {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
+                        const target = [...errorMessages].find(
+                            (element) => element.dataset.errorFor === field
+                        );
+                        if (target) {
+                            target.textContent = errors.map((error) => error.message).join(" ");
+                            target.hidden = false;
+                        }
+                    });
+                    return;
+                }
+                throw new Error("Could not save this skill.");
+            }
+
+            skillCreateForm.reset();
+            skillDialog.close();
+            await loadSkills();
+            showToast("Skill added", result.message, "success");
+        } catch (error) {
+            showToast("Could not add skill", "Please try again.", "error");
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
 }
 
 loadSkills();

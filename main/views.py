@@ -192,13 +192,25 @@ def create_skill(request):
         raise PermissionDenied
 
     form = SkillForm(request.POST or None)
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
 
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
             skill = form.save()
             _record_activity(request.user, "create", "skill", skill)
+        if is_ajax:
+            return JsonResponse(
+                {"success": True, "message": "Skill added successfully."},
+                status=201,
+            )
         messages.success(request, "Skill added successfully.")
         return redirect("main:show_skills")
+
+    if request.method == "POST" and is_ajax:
+        return JsonResponse(
+            {"success": False, "errors": form.errors.get_json_data()},
+            status=400,
+        )
 
     context = {
         "name": "Rizki",

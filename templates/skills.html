@@ -65,12 +65,14 @@
                             <h2 id="skill-dialog-title">Add a skill</h2>
                             <button type="button" class="button button-secondary" id="close-skill-dialog" aria-label="Close dialog">Close</button>
                         </div>
-                        <form method="post" action="{% url 'main:create_skill' %}" class="skill-form">
+                        <form method="post" action="{% url 'main:create_skill' %}" class="skill-form" id="skill-create-form">
                             {% csrf_token %}
+                            <div class="form-error" data-error-for="__all__" hidden></div>
                             {% for field in skill_form %}
                                 <div class="form-group">
                                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
+                                    <p class="form-error" data-error-for="{{ field.name }}" hidden></p>
                                     {% for error in field.errors %}
                                         <p class="form-error">{{ error }}</p>
                                     {% endfor %}
