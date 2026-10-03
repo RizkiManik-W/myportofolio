@@ -273,6 +273,32 @@ def get_skills_json(request):
     return JsonResponse(data, safe=False)
 
 
+def get_experiences_json(request):
+    title_query = request.GET.get("title", "").strip()
+    experiences = Experience.objects.order_by("started_at")
+
+    if title_query:
+        experiences = experiences.filter(title__icontains=title_query)
+
+    data = []
+    for experience in experiences:
+        data.append({
+            "pk": str(experience.pk),
+            "fields": {
+                "title": experience.title,
+                "description": experience.description,
+                "category": experience.category,
+                "category_display": experience.get_category_display(),
+                "thumbnail": experience.thumbnail,
+                "started_at": experience.started_at.isoformat(),
+                "ended_at": experience.ended_at.isoformat() if experience.ended_at else None,
+                "is_ongoing": experience.is_ongoing,
+            },
+        })
+
+    return JsonResponse(data, safe=False)
+
+
 @login_required(login_url="/login/")
 def delete_experience(request, experience_id):
     if not request.user.is_superuser:

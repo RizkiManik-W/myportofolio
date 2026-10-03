@@ -5,6 +5,7 @@ from main.views import (
     create_skill,
     delete_experience,
     delete_skill,
+    get_experiences_json,
     get_skills_json,
     login_user,
     logout_user,
@@ -36,4 +37,5 @@ urlpatterns = [
     path("skills/<uuid:skill_id>/edit/", update_skill, name="update_skill"),
     path("skills/<uuid:skill_id>/delete/", delete_skill, name="delete_skill"),
     path("api/skills/", get_skills_json, name="get_skills_json"),
+    path("api/experiences/", get_experiences_json, name="get_experiences_json"),
 ]
