@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block meta %}
     <title>Experience - {{ name }}</title>
@@ -22,46 +23,36 @@
                     <p class="last-login">Sesi terakhir login: {{ request.COOKIES.last_login }}</p>
                 {% endif %}
 
-                <form method="get" action="{% url 'main:show_experience' %}" class="project-search">
-                    <input type="search" name="title" value="{{ title_query }}" placeholder="Search experience" class="project-search__input">
+                <form method="get" action="{% url 'main:show_experience' %}" class="project-search" id="experience-search-form">
+                    <input type="search" name="title" id="experience-search-input" value="{{ title_query }}" placeholder="Search experience" class="project-search__input">
                     <button type="submit" class="button">Search</button>
                 </form>
 
-                <div class="experience-grid">
-                    {% for experience in experience_list %}
-                        <article class="experience-card">
-                            <span class="experience-category">
-                                {{ experience.get_category_display }}
-                            </span>
-                            <h2>{{ experience.title }}</h2>
-                            <p class="experience-description">
-                                {{ experience.description }}
-                            </p>
-
-                            {% if experience.is_ongoing %}
-                                <p class="experience-status">Sedang berlangsung</p>
-                            {% else %}
-                                <p class="experience-status">Selesai</p>
-                            {% endif %}
-
-                            {% if can_edit %}
-                                <div class="experience-actions">
-                                    {% if user.is_superuser %}
-                                        <form method="post" action="{% url 'main:delete_experience' experience.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="button button-danger">Delete</button>
-                                        </form>
-                                    {% endif %}
-                                    <a href="{% url 'main:update_experience' experience.id %}" class="button button-secondary">Edit</a>
-                                </div>
-                            {% endif %}
-                        </article>
-                    {% empty %}
-                        <p class="empty-state">
-                            Belum ada pengalaman yang ditambahkan.
-                        </p>
-                    {% endfor %}
+                <div class="experience-grid" id="experience-grid" data-api-url="{% url 'main:get_experiences_json' %}" aria-live="polite" aria-busy="true">
+                    <p class="empty-state" role="status">Loading experience...</p>
                 </div>
+
+                <template id="experience-card-template">
+                    <article class="experience-card">
+                        <span class="experience-category"></span>
+                        <h2></h2>
+                        <p class="experience-description"></p>
+                        <p class="experience-status"></p>
+                        {% if can_edit %}
+                            <div class="experience-actions">
+                                {% if user.is_superuser %}
+                                    <form method="post" action="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="button button-danger">Delete</button>
+                                    </form>
+                                {% endif %}
+                                <a href="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}" class="button button-secondary">Edit</a>
+                            </div>
+                        {% endif %}
+                    </article>
+                </template>
+
+                <script src="{% static 'js/experiences.js' %}" defer></script>
             </div>
         </section>
     </main>
