@@ -1,14 +1,20 @@
 const experienceGrid = document.getElementById("experience-grid");
 const experienceTemplate = document.getElementById("experience-card-template");
+const experienceSearchForm = document.getElementById("experience-search-form");
 const experienceSearchInput = document.getElementById("experience-search-input");
 const experienceIdPlaceholder = "00000000-0000-0000-0000-000000000000";
+let experienceSearchTimer;
+let currentExperienceRequest;
 
 async function loadExperiences(title = experienceSearchInput.value.trim()) {
+    if (currentExperienceRequest) currentExperienceRequest.abort();
+    currentExperienceRequest = new AbortController();
+
     const url = new URL(experienceGrid.dataset.apiUrl, window.location.origin);
     if (title) url.searchParams.set("title", title);
 
     try {
-        const response = await fetch(url);
+        const response = await fetch(url, { signal: currentExperienceRequest.signal });
         if (!response.ok) throw new Error("Could not load experiences");
         const experiences = await response.json();
         const cards = document.createDocumentFragment();
@@ -47,10 +53,23 @@ async function loadExperiences(title = experienceSearchInput.value.trim()) {
         experienceGrid.replaceChildren(cards);
         experienceGrid.setAttribute("aria-busy", "false");
     } catch (error) {
-        experienceGrid.setAttribute("aria-busy", "false");
-        experienceGrid.textContent = "Experience could not be loaded. Please try again.";
-        showToast("Could not load experience", "Please try again in a moment.", "error");
+        if (error.name !== "AbortError") {
+            experienceGrid.setAttribute("aria-busy", "false");
+            experienceGrid.textContent = "Experience could not be loaded. Please try again.";
+            showToast("Could not load experience", "Please try again in a moment.", "error");
+        }
     }
 }
+
+experienceSearchInput.addEventListener("input", () => {
+    clearTimeout(experienceSearchTimer);
+    experienceSearchTimer = setTimeout(() => loadExperiences(), 300);
+});
+
+experienceSearchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    clearTimeout(experienceSearchTimer);
+    loadExperiences();
+});
 
 loadExperiences();
