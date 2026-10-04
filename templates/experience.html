@@ -46,13 +46,13 @@
                                         <button type="submit" class="button button-danger">Delete</button>
                                     </form>
                                 {% endif %}
-                                <a href="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}" class="button button-secondary">Edit</a>
+                                <button type="button" class="button button-secondary experience-edit-button" data-update-url="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}">Edit</button>
                             </div>
                         {% endif %}
                     </article>
                 </template>
 
-                {% if user.is_authenticated and user.is_superuser %}
+                {% if can_edit %}
                     <dialog class="experience-dialog" id="experience-dialog" aria-labelledby="experience-dialog-title">
                         <div class="experience-dialog__heading">
                             <h2 id="experience-dialog-title">Add an experience</h2>
@@ -72,7 +72,7 @@
                                 </div>
                             {% endfor %}
                             <div class="skill-form-actions">
-                                <button type="submit" class="button">Add Experience</button>
+                                <button type="submit" class="button" id="experience-form-submit">Add Experience</button>
                                 <button type="button" class="button button-secondary" id="cancel-experience-dialog">Cancel</button>
                             </div>
                         </form>

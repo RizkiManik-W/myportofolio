@@ -4,7 +4,10 @@ const experienceSearchForm = document.getElementById("experience-search-form");
 const experienceSearchInput = document.getElementById("experience-search-input");
 const experienceDialog = document.getElementById("experience-dialog");
 const experienceCreateForm = document.getElementById("experience-create-form");
+const experienceDialogTitle = document.getElementById("experience-dialog-title");
+const experienceFormSubmit = document.getElementById("experience-form-submit");
 const experienceIdPlaceholder = "00000000-0000-0000-0000-000000000000";
+const createExperienceUrl = experienceCreateForm?.action;
 let experienceSearchTimer;
 let currentExperienceRequest;
 
@@ -32,13 +35,36 @@ async function loadExperiences(title = experienceSearchInput.value.trim()) {
                 ? "Sedang berlangsung"
                 : "Selesai";
 
-            card.querySelectorAll("[action], [href]").forEach((element) => {
-                const attribute = element.hasAttribute("action") ? "action" : "href";
+            card.querySelectorAll("[action], [href], [data-update-url]").forEach((element) => {
+                const attribute = ["action", "href", "data-update-url"].find(
+                    (name) => element.hasAttribute(name)
+                );
                 element.setAttribute(
                     attribute,
                     element.getAttribute(attribute).replace(experienceIdPlaceholder, experience.pk)
                 );
             });
+
+            const editButton = card.querySelector(".experience-edit-button");
+            if (editButton) {
+                editButton.addEventListener("click", () => {
+                    clearExperienceErrors();
+                    experienceCreateForm.action = editButton.dataset.updateUrl;
+                    experienceDialogTitle.textContent = "Edit experience";
+                    experienceFormSubmit.textContent = "Save Changes";
+
+                    Object.entries({
+                        title: fields.title,
+                        description: fields.description,
+                        category: fields.category,
+                        thumbnail: fields.thumbnail || "",
+                    }).forEach(([name, value]) => {
+                        experienceCreateForm.elements.namedItem(name).value = value;
+                    });
+
+                    experienceDialog.showModal();
+                });
+            }
 
             cards.appendChild(card);
         });
@@ -61,6 +87,23 @@ async function loadExperiences(title = experienceSearchInput.value.trim()) {
             showToast("Could not load experience", "Please try again in a moment.", "error");
         }
     }
+}
+
+function clearExperienceErrors() {
+    if (!experienceCreateForm) return;
+    experienceCreateForm.querySelectorAll("[data-error-for]").forEach((element) => {
+        element.textContent = "";
+        element.hidden = true;
+    });
+}
+
+function openCreateExperienceDialog() {
+    clearExperienceErrors();
+    experienceCreateForm.reset();
+    experienceCreateForm.action = createExperienceUrl;
+    experienceDialogTitle.textContent = "Add an experience";
+    experienceFormSubmit.textContent = "Add Experience";
+    experienceDialog.showModal();
 }
 
 experienceSearchInput.addEventListener("input", () => {
@@ -106,7 +149,8 @@ experienceGrid.addEventListener("submit", async (event) => {
 });
 
 if (experienceDialog) {
-    document.getElementById("open-experience-dialog").addEventListener("click", () => experienceDialog.showModal());
+    const openButton = document.getElementById("open-experience-dialog");
+    if (openButton) openButton.addEventListener("click", openCreateExperienceDialog);
     document.getElementById("close-experience-dialog").addEventListener("click", () => experienceDialog.close());
     document.getElementById("cancel-experience-dialog").addEventListener("click", () => experienceDialog.close());
 }
@@ -115,12 +159,10 @@ if (experienceCreateForm) {
     experienceCreateForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
+        const isEditing = experienceCreateForm.action !== createExperienceUrl;
         const submitButton = experienceCreateForm.querySelector("button[type='submit']");
         const errorMessages = experienceCreateForm.querySelectorAll("[data-error-for]");
-        errorMessages.forEach((element) => {
-            element.textContent = "";
-            element.hidden = true;
-        });
+        clearExperienceErrors();
         submitButton.disabled = true;
 
         try {
@@ -153,9 +195,13 @@ if (experienceCreateForm) {
             experienceCreateForm.reset();
             experienceDialog.close();
             await loadExperiences();
-            showToast("Experience added", result.message, "success");
+            showToast(isEditing ? "Experience updated" : "Experience added", result.message, "success");
         } catch (error) {
-            showToast("Could not add experience", error.message || "Please try again.", "error");
+            showToast(
+                isEditing ? "Could not update experience" : "Could not add experience",
+                error.message || "Please try again.",
+                "error"
+            );
         } finally {
             submitButton.disabled = false;
         }
