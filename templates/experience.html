@@ -41,7 +41,7 @@
                         {% if can_edit %}
                             <div class="experience-actions">
                                 {% if user.is_superuser %}
-                                    <form method="post" action="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}">
+                                    <form method="post" action="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}" class="experience-delete-form">
                                         {% csrf_token %}
                                         <button type="submit" class="button button-danger">Delete</button>
                                     </form>

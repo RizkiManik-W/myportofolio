@@ -74,6 +74,37 @@ experienceSearchForm.addEventListener("submit", (event) => {
     loadExperiences();
 });
 
+experienceGrid.addEventListener("submit", async (event) => {
+    const deleteForm = event.target.closest(".experience-delete-form");
+    if (!deleteForm) return;
+
+    event.preventDefault();
+    if (!window.confirm("Are you sure you want to delete this experience?")) return;
+
+    const deleteButton = deleteForm.querySelector("button[type='submit']");
+    deleteButton.disabled = true;
+
+    try {
+        const response = await fetch(deleteForm.action, {
+            method: "POST",
+            body: new FormData(deleteForm),
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+            },
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Could not delete this experience.");
+
+        await loadExperiences();
+        showToast("Experience deleted", result.message, "success");
+    } catch (error) {
+        showToast("Could not delete experience", error.message || "Please try again.", "error");
+    } finally {
+        deleteButton.disabled = false;
+    }
+});
+
 if (experienceDialog) {
     document.getElementById("open-experience-dialog").addEventListener("click", () => experienceDialog.showModal());
     document.getElementById("close-experience-dialog").addEventListener("click", () => experienceDialog.close());

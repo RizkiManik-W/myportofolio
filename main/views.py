@@ -141,7 +141,14 @@ def create_experience(request):
 
 @login_required(login_url="/login/")
 def update_experience(request, experience_id):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
     if not _can_edit_portfolio(request.user):
+        if is_ajax:
+            return JsonResponse(
+                {"success": False, "message": "You do not have permission to edit experiences."},
+                status=403,
+            )
         raise PermissionDenied
 
     experience = get_object_or_404(Experience, pk=experience_id)
@@ -151,8 +158,18 @@ def update_experience(request, experience_id):
         with transaction.atomic():
             experience = form.save()
             _record_activity(request.user, "update", "experience", experience)
+        if is_ajax:
+            return JsonResponse(
+                {"success": True, "message": "Experience updated successfully."},
+            )
         messages.success(request, "Experience updated successfully.")
         return redirect("main:show_experience")
+
+    if request.method == "POST" and is_ajax:
+        return JsonResponse(
+            {"success": False, "errors": form.errors.get_json_data()},
+            status=400,
+        )
 
     context = {
         "name": "Rizki",
@@ -314,6 +331,13 @@ def get_experiences_json(request):
 
 @login_required(login_url="/login/")
 def delete_experience(request, experience_id):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+    if not request.user.is_superuser and is_ajax:
+        return JsonResponse(
+            {"success": False, "message": "Only administrators can delete experiences."},
+            status=403,
+        )
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -323,6 +347,10 @@ def delete_experience(request, experience_id):
         with transaction.atomic():
             _record_activity(request.user, "delete", "experience", experience)
             experience.delete()
+        if is_ajax:
+            return JsonResponse(
+                {"success": True, "message": "Experience deleted successfully."},
+            )
         messages.success(request, "Experience deleted successfully.")
 
     return redirect("main:show_experience")
