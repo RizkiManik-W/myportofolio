@@ -11,9 +11,19 @@ const createExperienceUrl = experienceCreateForm?.action;
 let experienceSearchTimer;
 let currentExperienceRequest;
 
+function showExperienceLoadingState() {
+    const loadingMessage = document.createElement("p");
+    loadingMessage.className = "empty-state";
+    loadingMessage.setAttribute("role", "status");
+    loadingMessage.textContent = "Loading experience...";
+    experienceGrid.replaceChildren(loadingMessage);
+    experienceGrid.setAttribute("aria-busy", "true");
+}
+
 async function loadExperiences(title = experienceSearchInput.value.trim()) {
     if (currentExperienceRequest) currentExperienceRequest.abort();
     currentExperienceRequest = new AbortController();
+    showExperienceLoadingState();
 
     const url = new URL(experienceGrid.dataset.apiUrl, window.location.origin);
     if (title) url.searchParams.set("title", title);

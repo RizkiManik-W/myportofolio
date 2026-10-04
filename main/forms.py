@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.forms import ModelForm, NumberInput, TextInput, Textarea
+from django.utils.html import strip_tags
 
 from main.models import Experience, Skill
 
@@ -68,3 +70,15 @@ class ExperienceForm(ModelForm):
                 attrs={"placeholder": "https://example.com/image.jpg"}
             ),
         }
+
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Enter a title without HTML tags.")
+        return title
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"]).strip()
+        if not description:
+            raise ValidationError("Enter a description without HTML tags.")
+        return description
