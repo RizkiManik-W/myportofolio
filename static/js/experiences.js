@@ -2,6 +2,7 @@ const experienceGrid = document.getElementById("experience-grid");
 const experienceTemplate = document.getElementById("experience-card-template");
 const experienceSearchForm = document.getElementById("experience-search-form");
 const experienceSearchInput = document.getElementById("experience-search-input");
+const experienceDialog = document.getElementById("experience-dialog");
 const experienceIdPlaceholder = "00000000-0000-0000-0000-000000000000";
 let experienceSearchTimer;
 let currentExperienceRequest;
@@ -71,5 +72,11 @@ experienceSearchForm.addEventListener("submit", (event) => {
     clearTimeout(experienceSearchTimer);
     loadExperiences();
 });
+
+if (experienceDialog) {
+    document.getElementById("open-experience-dialog").addEventListener("click", () => experienceDialog.showModal());
+    document.getElementById("close-experience-dialog").addEventListener("click", () => experienceDialog.close());
+    document.getElementById("cancel-experience-dialog").addEventListener("click", () => experienceDialog.close());
+}
 
 loadExperiences();

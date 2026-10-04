@@ -15,7 +15,7 @@
                         <h2>Experience</h2>
                     </div>
                     {% if user.is_authenticated and user.is_superuser %}
-                        <a href="{% url 'main:create_experience' %}" class="button">Add Experience</a>
+                        <button type="button" class="button" id="open-experience-dialog">Add Experience</button>
                     {% endif %}
                 </div>
 
@@ -51,6 +51,31 @@
                         {% endif %}
                     </article>
                 </template>
+
+                {% if user.is_authenticated and user.is_superuser %}
+                    <dialog class="experience-dialog" id="experience-dialog" aria-labelledby="experience-dialog-title">
+                        <div class="experience-dialog__heading">
+                            <h2 id="experience-dialog-title">Add an experience</h2>
+                            <button type="button" class="button button-secondary" id="close-experience-dialog" aria-label="Close dialog">Close</button>
+                        </div>
+                        <form method="post" action="{% url 'main:create_experience' %}" class="skill-form" id="experience-create-form">
+                            {% csrf_token %}
+                            {% for field in experience_form %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% for error in field.errors %}
+                                        <p class="form-error">{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                            <div class="skill-form-actions">
+                                <button type="submit" class="button">Add Experience</button>
+                                <button type="button" class="button button-secondary" id="cancel-experience-dialog">Cancel</button>
+                            </div>
+                        </form>
+                    </dialog>
+                {% endif %}
 
                 <script src="{% static 'js/experiences.js' %}" defer></script>
             </div>
