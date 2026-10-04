@@ -60,10 +60,12 @@
                         </div>
                         <form method="post" action="{% url 'main:create_experience' %}" class="skill-form" id="experience-create-form">
                             {% csrf_token %}
+                            <div class="form-error" data-error-for="__all__" hidden></div>
                             {% for field in experience_form %}
                                 <div class="form-group">
                                     <label for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     {{ field }}
+                                    <p class="form-error" data-error-for="{{ field.name }}" hidden></p>
                                     {% for error in field.errors %}
                                         <p class="form-error">{{ error }}</p>
                                     {% endfor %}

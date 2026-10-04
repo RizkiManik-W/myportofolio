@@ -3,6 +3,7 @@ const experienceTemplate = document.getElementById("experience-card-template");
 const experienceSearchForm = document.getElementById("experience-search-form");
 const experienceSearchInput = document.getElementById("experience-search-input");
 const experienceDialog = document.getElementById("experience-dialog");
+const experienceCreateForm = document.getElementById("experience-create-form");
 const experienceIdPlaceholder = "00000000-0000-0000-0000-000000000000";
 let experienceSearchTimer;
 let currentExperienceRequest;
@@ -77,6 +78,57 @@ if (experienceDialog) {
     document.getElementById("open-experience-dialog").addEventListener("click", () => experienceDialog.showModal());
     document.getElementById("close-experience-dialog").addEventListener("click", () => experienceDialog.close());
     document.getElementById("cancel-experience-dialog").addEventListener("click", () => experienceDialog.close());
+}
+
+if (experienceCreateForm) {
+    experienceCreateForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        const submitButton = experienceCreateForm.querySelector("button[type='submit']");
+        const errorMessages = experienceCreateForm.querySelectorAll("[data-error-for]");
+        errorMessages.forEach((element) => {
+            element.textContent = "";
+            element.hidden = true;
+        });
+        submitButton.disabled = true;
+
+        try {
+            const response = await fetch(experienceCreateForm.action, {
+                method: "POST",
+                body: new FormData(experienceCreateForm),
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Accept": "application/json",
+                },
+            });
+            const result = await response.json();
+
+            if (!response.ok) {
+                if (result.errors) {
+                    Object.entries(result.errors).forEach(([field, errors]) => {
+                        const target = [...errorMessages].find(
+                            (element) => element.dataset.errorFor === field
+                        );
+                        if (target) {
+                            target.textContent = errors.map((error) => error.message).join(" ");
+                            target.hidden = false;
+                        }
+                    });
+                    return;
+                }
+                throw new Error(result.message || "Could not save this experience.");
+            }
+
+            experienceCreateForm.reset();
+            experienceDialog.close();
+            await loadExperiences();
+            showToast("Experience added", result.message, "success");
+        } catch (error) {
+            showToast("Could not add experience", error.message || "Please try again.", "error");
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
 }
 
 loadExperiences();

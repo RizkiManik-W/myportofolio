@@ -101,6 +101,13 @@ def show_experience(request):
 
 @login_required(login_url="/login/")
 def create_experience(request):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+    if not request.user.is_superuser and is_ajax:
+        return JsonResponse(
+            {"success": False, "message": "Only administrators can add experiences."},
+            status=403,
+        )
     if not request.user.is_superuser:
         raise PermissionDenied
 
@@ -110,8 +117,19 @@ def create_experience(request):
         with transaction.atomic():
             experience = form.save()
             _record_activity(request.user, "create", "experience", experience)
+        if is_ajax:
+            return JsonResponse(
+                {"success": True, "message": "Experience added successfully."},
+                status=201,
+            )
         messages.success(request, "Experience added successfully.")
         return redirect("main:show_experience")
+
+    if request.method == "POST" and is_ajax:
+        return JsonResponse(
+            {"success": False, "errors": form.errors.get_json_data()},
+            status=400,
+        )
 
     context = {
         "name": "Rizki",
