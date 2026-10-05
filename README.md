@@ -137,6 +137,8 @@ Saya juga menabhakn fitur tambahan yaitu riwayat aktifitas. Untuk setiap pembuat
 
 ### Tugas 5
 
+Mengimplementasikan AJAX untuk experience dan skill
+
 1. Debouncing mendelay search sampai user stop mengetik selama beberapa saat. Di projek ini, search menunggu selama 300ms sebelum melakukan request data yang telah difilter melalui endpoint JSON. Ini menhindari pengiriman request untuk setiap ketikan dan mengurangi kerja yang tidak begitu diperlukab untuk server dan browser. 
 
 2. `fetch()` mengembalikan sebuah Promise karena request network selesai secara asinkronus. Menggunakan `await` melakukan pause untuk fungsi async saat ini sampai respon tersedia, jadi code dapat mengecek status dan membaca data JSON secara terurut. tanpa `await` atau `.then()`, code akan akan tetap lanjut dengan Promise dibandingkan respon yang respon yang telah selesai diproses. Hal ini dapat menyebabkan hasil yang salah atau race condition.
