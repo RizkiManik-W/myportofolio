@@ -40,6 +40,18 @@ class SkillForm(ModelForm):
             ),
         }
 
+    def clean_title(self):
+        title = strip_tags(self.cleaned_data["title"]).strip()
+        if not title:
+            raise ValidationError("Enter a title without HTML tags.")
+        return title
+
+    def clean_description(self):
+        description = strip_tags(self.cleaned_data["description"]).strip()
+        if not description:
+            raise ValidationError("Enter a description without HTML tags.")
+        return description
+
 
 class ExperienceForm(ModelForm):
     class Meta:

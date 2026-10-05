@@ -134,3 +134,11 @@ For this assignment, I extended authentication and authorization to the Skills a
 Saya juga menabhakn fitur tambahan yaitu riwayat aktifitas. Untuk setiap pembuatan, udpate, atau penghapusan skill ataupun experience akan merekam username, action, item tittle, dan timestamp. Riwayat akan disimpah di dalam tempat yang sama di perubahan portofolio dan hanya tersedia untuk superusers di `/activity`. 
 
 /`api/skills/` JSON endpoint tetap tersedia untuk membaca skill data tanpa exposing password atau credentials akun. Untuk menambah role editor pada environment baru, buat grup `Editor` di Django admin dan tambahkan akun yang diinginkan ke grup tersebut.
+
+### Tugas 5
+
+1. Debouncing mendelay search sampai user stop mengetik selama beberapa saat. Di projek ini, search menunggu selama 300ms sebelum melakukan request data yang telah difilter melalui endpoint JSON. Ini menhindari pengiriman request untuk setiap ketikan dan mengurangi kerja yang tidak begitu diperlukab untuk server dan browser. 
+
+2. `fetch()` mengembalikan sebuah Promise karena request network selesai secara asinkronus. Menggunakan `await` melakukan pause untuk fungsi async saat ini sampai respon tersedia, jadi code dapat mengecek status dan membaca data JSON secara terurut. tanpa `await` atau `.then()`, code akan akan tetap lanjut dengan Promise dibandingkan respon yang respon yang telah selesai diproses. Hal ini dapat menyebabkan hasil yang salah atau race condition.
+
+3. Cross-Site scripting (XSS) merupakan serangan dimana konten yang tidak dipercayai di interpretasikan sebagai executeable HTML atau JavaScript di user browser lain. Data yang diload AKAX tidak secara otomatis tidak aman, tapi JavaScript dapat membuat halaman rentan terhadap XSS jika memasukkan nilai yang tidak tepercaya menggunakan innerHTML. Template Django secara default melakukan escaping terhadap output variabel, sedangkan pada JavaScript sebaiknya digunakan API DOM yang aman seperti textContent atau melakukan escaping nilai secara eksplisit. Pada proyek ini, textContent digunakan untuk menampilkan teks, dan tag HTML pada judul serta deskripsi Skill dan Experience dihapus di sisi server.
