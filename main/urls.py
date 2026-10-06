@@ -18,6 +18,7 @@ from main.views import (
     toggle_experience_star,
     update_experience,
     update_skill,
+    show_project,
 )
 
 app_name = "main"
@@ -40,4 +41,5 @@ urlpatterns = [
     path("skills/<uuid:skill_id>/delete/", delete_skill, name="delete_skill"),
     path("api/skills/", get_skills_json, name="get_skills_json"),
     path("api/experiences/", get_experiences_json, name="get_experiences_json"),
+    path("projects/", show_project, name="show_project")
 ]
