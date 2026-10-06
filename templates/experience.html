@@ -38,15 +38,22 @@
                         <h2></h2>
                         <p class="experience-description"></p>
                         <p class="experience-status"></p>
-                        {% if can_edit %}
+                        <p class="experience-star-summary">&#9733; <span class="star-count">0</span> stars</p>
+                        {% if user.is_authenticated %}
                             <div class="experience-actions">
-                                {% if user.is_superuser %}
-                                    <form method="post" action="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}" class="experience-delete-form">
-                                        {% csrf_token %}
-                                        <button type="submit" class="button button-danger">Delete</button>
-                                    </form>
+                                <form method="post" action="{% url 'main:toggle_experience_star' '00000000-0000-0000-0000-000000000000' %}" class="experience-star-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-secondary" aria-pressed="false"><span class="star-label">Star</span></button>
+                                </form>
+                                {% if can_edit %}
+                                    {% if user.is_superuser %}
+                                        <form method="post" action="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}" class="experience-delete-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="button button-danger">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                    <button type="button" class="button button-secondary experience-edit-button" data-update-url="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}">Edit</button>
                                 {% endif %}
-                                <button type="button" class="button button-secondary experience-edit-button" data-update-url="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}">Edit</button>
                             </div>
                         {% endif %}
                     </article>

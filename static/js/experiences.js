@@ -44,6 +44,14 @@ async function loadExperiences(title = experienceSearchInput.value.trim()) {
             card.querySelector(".experience-status").textContent = fields.is_ongoing
                 ? "Sedang berlangsung"
                 : "Selesai";
+            card.querySelector(".star-count").textContent = fields.star_count;
+            card.querySelector(".experience-star-summary").title = fields.starred_by_names || "No stars yet";
+            const starButton = card.querySelector(".experience-star-form button");
+            if (starButton) {
+                starButton.classList.toggle("is-starred", fields.is_starred);
+                starButton.setAttribute("aria-pressed", String(fields.is_starred));
+                starButton.querySelector(".star-label").textContent = fields.is_starred ? "Starred" : "Star";
+            }
 
             card.querySelectorAll("[action], [href], [data-update-url]").forEach((element) => {
                 const attribute = ["action", "href", "data-update-url"].find(
@@ -125,6 +133,43 @@ experienceSearchForm.addEventListener("submit", (event) => {
     event.preventDefault();
     clearTimeout(experienceSearchTimer);
     loadExperiences();
+});
+
+experienceGrid.addEventListener("submit", async (event) => {
+    const starForm = event.target.closest(".experience-star-form");
+    if (!starForm) return;
+
+    event.preventDefault();
+    const button = starForm.querySelector("button");
+    if (button.disabled) return;
+    button.disabled = true;
+
+    try {
+        const response = await fetch(starForm.action, {
+            method: "POST",
+            body: new FormData(starForm),
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+                "Accept": "application/json",
+            },
+        });
+        if (!response.headers.get("content-type")?.includes("application/json")) {
+            throw new Error("Could not update this star. Please refresh and try again.");
+        }
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || "Could not update this star.");
+
+        button.classList.toggle("is-starred", result.is_starred);
+        button.setAttribute("aria-pressed", String(result.is_starred));
+        button.querySelector(".star-label").textContent = result.is_starred ? "Starred" : "Star";
+        const card = starForm.closest(".experience-card");
+        card.querySelector(".star-count").textContent = result.star_count;
+        card.querySelector(".experience-star-summary").removeAttribute("title");
+    } catch (error) {
+        showToast("Could not update star", error.message, "error");
+    } finally {
+        button.disabled = false;
+    }
 });
 
 experienceGrid.addEventListener("submit", async (event) => {

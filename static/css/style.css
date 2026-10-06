@@ -708,6 +708,12 @@ button.button:hover {
     margin: 0;
 }
 
+.experience-card .experience-actions .experience-star-form button.button.is-starred {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--ink);
+}
+
 .experience-card .experience-actions a.button.button-secondary {
     background: rgba(255, 255, 255, 0.02);
     border-color: rgba(199, 206, 208, 0.22);

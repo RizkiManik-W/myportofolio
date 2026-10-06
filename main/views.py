@@ -6,6 +6,7 @@ from django.core.exceptions import PermissionDenied
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_POST
 
 from main.forms import ExperienceForm, SkillForm
 from main.models import ActivityLog, Experience, Skill
@@ -303,15 +304,44 @@ def get_skills_json(request):
     return JsonResponse(data, safe=False)
 
 
+@require_POST
+def toggle_experience_star(request, experience_id):
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"success": False, "message": "Please log in to star experiences."},
+            status=403,
+        )
+
+    with transaction.atomic():
+        experience = get_object_or_404(
+            Experience.objects.select_for_update(), pk=experience_id
+        )
+        is_starred = experience.starred_by.filter(pk=request.user.pk).exists()
+        if is_starred:
+            experience.starred_by.remove(request.user)
+        else:
+            experience.starred_by.add(request.user)
+        star_count = experience.starred_by.count()
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "is_starred": not is_starred,
+            "star_count": star_count,
+        })
+    return redirect("main:show_experience")
+
+
 def get_experiences_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.order_by("started_at")
+    experiences = Experience.objects.prefetch_related("starred_by").order_by("started_at")
 
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
 
     data = []
     for experience in experiences:
+        starred_users = list(experience.starred_by.all())
         data.append({
             "pk": str(experience.pk),
             "fields": {
@@ -323,6 +353,11 @@ def get_experiences_json(request):
                 "started_at": experience.started_at.isoformat(),
                 "ended_at": experience.ended_at.isoformat() if experience.ended_at else None,
                 "is_ongoing": experience.is_ongoing,
+                "star_count": len(starred_users),
+                "is_starred": request.user.is_authenticated and any(
+                    user.pk == request.user.pk for user in starred_users
+                ),
+                "starred_by_names": ", ".join(user.username for user in starred_users),
             },
         })
 
