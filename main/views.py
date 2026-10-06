@@ -89,6 +89,9 @@ def show_main(request):
     return render(request, "index.html", context)
 
 
+def show_project(request):
+    return render(request, "projects.html")
+
 def show_experience(request):
     title_query = request.GET.get("title", "").strip()
     context = {
