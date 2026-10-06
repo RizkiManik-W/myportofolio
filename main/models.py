@@ -60,6 +60,8 @@ class Experience(models.Model):
     def is_ongoing(self):
         return self.ended_at is None
 
+class Project(models.Model): 
+    title = models.CharField(max_length=255)
 
 class ActivityLog(models.Model):
     ACTION_CHOICES = [
