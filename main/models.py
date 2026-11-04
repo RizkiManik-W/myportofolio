@@ -82,6 +82,7 @@ class ActivityLog(models.Model):
     TARGET_CHOICES = [
         ("skill", "Skill"),
         ("experience", "Experience"),
+        ("project", "Project"),
     ]
 
     actor = models.ForeignKey(

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contacts</title>
+  <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.11/dist/htmx.min.js"></script>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <h1>Tambah Kontak</h1>
+  <form hx-post="{% url 'contacts:contact_add' %}"
+        hx-target="#contact-rows"
+        hx-swap="beforeend"
+        hx-on::after-request="if (event.detail.successful) this.reset()">
+    {% csrf_token %}
+    <input type="text" name="name" placeholder="Nama" required>
+    <input type="email" name="email" placeholder="Email" required>
+    <input type="text" name="phone" placeholder="Telepon">
+    <button type="submit">Tambah</button>
+  </form>
+  <div id="feedback"></div>
+
+  <h1>Daftar Kontak</h1>
+  <input type="search" name="q" placeholder="Cari kontak..."
+         hx-get="{% url 'contacts:contact_search' %}"
+         hx-trigger="keyup changed delay:300ms, search"
+         hx-target="#contact-rows"
+         hx-indicator="#search-indicator">
+  <span id="search-indicator" class="htmx-indicator">Mencari...</span>
+
+  <table>
+    <thead><tr><th>Nama</th><th>Email</th><th>Telepon</th><th></th></tr></thead>
+    <tbody id="contact-rows">
+      {% include "contacts/_contact_rows.html" %}
+    </tbody>
+  </table>
+</body>
+</html>

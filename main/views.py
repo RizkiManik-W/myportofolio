@@ -8,9 +8,8 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
-from main.forms import ExperienceForm, SkillForm
-from main.models import ActivityLog, Experience, Skill
-
+from main.forms import ExperienceForm, SkillForm, ProjectForm
+from main.models import ActivityLog, Experience, Skill, Project
 
 def _is_editor(user):
     return user.is_authenticated and user.groups.filter(name="Editor").exists()
@@ -90,7 +89,19 @@ def show_main(request):
 
 
 def show_project(request):
-    return render(request, "projects.html")
+    title_query = request.GET.get("title", "").strip()
+    projects = Project.objects.all()
+
+    if title_query:
+        projects = projects.filter(title__icontains=title_query)
+
+    context = {
+        "name": "Rizki",
+        "project_list": projects,
+        "can_edit": _can_edit_portfolio(request.user),
+        "title_query": title_query,
+    }
+    return render(request, "projects.html", context)
 
 def show_experience(request):
     title_query = request.GET.get("title", "").strip()
@@ -102,6 +113,80 @@ def show_experience(request):
     }
     return render(request, "experience.html", context)
 
+
+@login_required(login_url="/login/")
+def create_project(request):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    form = ProjectForm(request.POST if request.method == "POST" else None)
+
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            project = form.save()
+            _record_activity(request.user, "create", "project", project)
+        messages.success(request, "Project added successfully.")
+        return redirect("main:show_project")
+
+    context = {
+        "name" : "Rizki", 
+        "form" : form,
+        "is_editing": False,
+    }
+
+    return render(request, "project_form.html", context)
+
+@login_required(login_url="/login/")
+def update_project(request, project_id):
+    if not _can_edit_portfolio(request.user):
+        raise PermissionDenied
+
+    project = get_object_or_404(Project, pk=project_id)
+    form = ProjectForm(
+        request.POST if request.method == "POST" else None,
+        instance=project,
+    )
+
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            project = form.save()
+            _record_activity(request.user, "update", "project", project)
+        messages.success(request, "Project updated successfully.")
+        return redirect("main:show_project")
+    context = {
+        "name" : "Rizki",
+        "form" : form, 
+        "is_editing" : True, 
+    }
+
+    return render(request, "project_form.html", context)
+
+
+@login_required(login_url="/login/")
+@require_POST
+def delete_project(request, project_id):
+    if not request.user.is_superuser:
+        raise PermissionDenied
+
+    project = get_object_or_404(Project, pk=project_id)
+    with transaction.atomic():
+        _record_activity(request.user, "delete", "project", project)
+        project.delete()
+
+    messages.success(request, "Project deleted successfully.")
+    return redirect("main:show_project")
+
+@login_required(login_url="/login/")
+@require_POST
+def toggle_project_star(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if project.starred_by.filter(pk=request.user.pk).exists():
+        project.starred_by.remove(request.user)
+    else:
+        project.starred_by.add(request.user)
+
+    return redirect("main:show_project")
 
 @login_required(login_url="/login/")
 def create_experience(request):
@@ -276,6 +361,37 @@ def update_skill(request, skill_id):
     }
     return render(request, "skills_form.html", context)
 
+def get_projects_json(request):
+    title_query = request.GET.get("title", "").strip()
+    projects = Project.objects.prefetch_related("starred_by").all()
+
+    if title_query:
+        projects = projects.filter(title__icontains=title_query)
+
+    data = []
+    for project in projects:
+        starred_users = list(project.starred_by.all())
+
+        data.append({
+            "pk": str(project.pk),
+            "fields": {
+                "title": project.title,
+                "description": project.description,
+                "tech_stack": project.tech_stack,
+                "project_url": project.project_url,
+                "project_image_url": project.project_image_url,
+                "star_count": len(starred_users),
+                "is_starred": (
+                    request.user.is_authenticated
+                    and request.user in starred_users
+                ),
+                "starred_by_names": ", ".join(
+                    user.username for user in starred_users
+                ),
+            },
+        })
+
+    return JsonResponse(data, safe=False)
 
 def get_skills_json(request):
     title_query = request.GET.get("title", "").strip()

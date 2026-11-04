@@ -16,4 +16,7 @@ class ExperienceAdmin(admin.ModelAdmin):
     list_filter = ("category", "ended_at")
     search_fields = ("title", "description")
 
-admin.site.register(Project)
+@admin.register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    list_display = ("title", "tech_stack")
+    search_fields = ("title", "description")

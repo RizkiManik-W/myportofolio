@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main class="container">
+    <h1>
+        {% if is_editing %}Edit Project{% else %}Add Project{% endif %}
+    </h1>
+    <form method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+
+        <button type="submit">
+        {% if is_editing %}Save Changes{% else %}Add Project{% endif %}
+         </button>
+    </form>
+</main>
+{% endblock content %}

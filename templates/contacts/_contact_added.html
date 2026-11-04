@@ -1,0 +1,4 @@
+{# Main response: the new row, inserted with hx-swap="beforeend" into #contact-rows #}
+{% include "contacts/_contact_row.html" %}
+{# Out-of-band: updates #feedback regardless of hx-target #}
+<div id="feedback" hx-swap-oob="true">{{ message }}</div>
