@@ -267,31 +267,142 @@ button.button:hover {
     box-shadow: none;
 }
 
+/* Projects */
+.project-section {
+    padding: 2rem 0 5rem;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
 .project-card {
-    background-color: var(--bg-secondary); 
-    border: 1px solid var(--line); 
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    border: 1px solid var(--line);
     border-radius: var(--radius);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem 
+    background: linear-gradient(145deg, rgba(25, 58, 67, 0.8), rgba(11, 16, 20, 0.95));
+    animation: skill-reveal 0.6s ease both;
+    transition: border-color 0.25s ease, transform 0.25s ease;
 }
 
-.project-card img {
-    display: block; 
-    max-width: 100%; 
-    height: auto;
-    margin-top: 1rem;
-    border-radius: var(--radius)
+.project-card:hover {
+    border-color: var(--cyan-bright);
+    transform: translateY(-6px);
 }
 
-.project-card h2,
-.project-card p {
-    margin-bottom: 0.75rem;
+.project-thumb {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    background: var(--bg-secondary);
 }
 
-.project-card a {
+.project-thumb img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.project-body {
+    flex: 1;
+    padding: 1.25rem 1.25rem 0;
+}
+
+.project-card h3 {
+    margin-bottom: 0.5rem;
+    font-family: "Space Grotesk", -apple-system, sans-serif;
+    font-size: 1.3rem;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+}
+
+.project-description {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.85rem;
+    list-style: none;
+}
+
+.project-tech li {
+    padding: 0.1rem 0.5rem;
     color: var(--cyan-light);
+    background: rgba(112, 215, 228, 0.05);
+    border: 1px solid rgba(112, 215, 228, 0.22);
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+.project-link {
+    display: inline-block;
+    margin-top: 0.85rem;
+    color: var(--cyan-light);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.project-link:hover {
     text-decoration: underline;
     text-underline-offset: 0.2em;
+}
+
+.project-star-summary {
+    margin-top: 0.85rem;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.project-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem 1.25rem;
+}
+
+.project-card .project-actions form {
+    margin: 0;
+}
+
+.project-card .project-actions button.button {
+    display: inline-flex;
+    min-height: 0;
+    height: 1.7rem;
+    padding: 0.2rem 0.62rem;
+    margin-top: 0;
+    font-size: 0.72rem;
+    line-height: 1.15;
+    border-radius: 0.5rem;
+}
+
+.project-card .project-actions button.button-danger {
+    background: linear-gradient(135deg, rgba(185, 45, 38, 0.92), rgba(126, 27, 23, 0.92));
+    border-color: rgba(255, 124, 124, 0.35);
+    color: var(--text-primary);
+    box-shadow: none;
+}
+
+.project-card .project-actions .project-star-form button.button.is-starred {
+    background: var(--cyan-bright);
+    border-color: var(--cyan-light);
+    color: var(--bg-primary);
 }
 
 .skill-card .button-danger,
@@ -854,7 +965,8 @@ button.button:hover {
 }
 
 .skill-dialog,
-.experience-dialog {
+.experience-dialog,
+.project-dialog {
     position: fixed;
     inset: 50% auto auto 50%;
     transform: translate(-50%, -50%);
@@ -874,18 +986,21 @@ button.button:hover {
 }
 
 .skill-dialog::-webkit-scrollbar,
-.experience-dialog::-webkit-scrollbar {
+.experience-dialog::-webkit-scrollbar,
+.project-dialog::-webkit-scrollbar {
     display: none;
 }
 
 .skill-dialog::backdrop,
-.experience-dialog::backdrop {
+.experience-dialog::backdrop,
+.project-dialog::backdrop {
     background: rgba(0, 0, 0, 0.72);
     backdrop-filter: blur(3px);
 }
 
 .skill-dialog .skill-form,
-.experience-dialog .skill-form {
+.experience-dialog .skill-form,
+.project-dialog .skill-form {
     max-width: none;
     margin-top: 0.75rem;
     padding: 0;
@@ -895,7 +1010,8 @@ button.button:hover {
 }
 
 .skill-dialog__heading,
-.experience-dialog__heading {
+.experience-dialog__heading,
+.project-dialog__heading {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -906,7 +1022,8 @@ button.button:hover {
 }
 
 .skill-dialog__heading h2,
-.experience-dialog__heading h2 {
+.experience-dialog__heading h2,
+.project-dialog__heading h2 {
     margin: 0;
 }
 

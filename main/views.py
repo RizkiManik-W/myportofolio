@@ -90,16 +90,11 @@ def show_main(request):
 
 def show_project(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.all()
-
-    if title_query:
-        projects = projects.filter(title__icontains=title_query)
-
     context = {
         "name": "Rizki",
-        "project_list": projects,
-        "can_edit": _can_edit_portfolio(request.user),
         "title_query": title_query,
+        "can_edit": _can_edit_portfolio(request.user),
+        "project_form": ProjectForm(),
     }
     return render(request, "projects.html", context)
 
@@ -116,56 +111,95 @@ def show_experience(request):
 
 @login_required(login_url="/login/")
 def create_project(request):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
+    if not request.user.is_superuser and is_ajax:
+        return JsonResponse(
+            {"success": False, "message": "Only administrators can add projects."},
+            status=403,
+        )
     if not request.user.is_superuser:
         raise PermissionDenied
 
-    form = ProjectForm(request.POST if request.method == "POST" else None)
+    form = ProjectForm(request.POST or None)
 
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
             project = form.save()
             _record_activity(request.user, "create", "project", project)
+        if is_ajax:
+            return JsonResponse(
+                {"success": True, "message": "Project added successfully."},
+                status=201,
+            )
         messages.success(request, "Project added successfully.")
         return redirect("main:show_project")
 
+    if request.method == "POST" and is_ajax:
+        return JsonResponse(
+            {"success": False, "errors": form.errors.get_json_data()},
+            status=400,
+        )
+
     context = {
-        "name" : "Rizki", 
-        "form" : form,
+        "name": "Rizki",
+        "form": form,
         "is_editing": False,
     }
-
     return render(request, "project_form.html", context)
+
 
 @login_required(login_url="/login/")
 def update_project(request, project_id):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
     if not _can_edit_portfolio(request.user):
+        if is_ajax:
+            return JsonResponse(
+                {"success": False, "message": "You do not have permission to edit projects."},
+                status=403,
+            )
         raise PermissionDenied
 
     project = get_object_or_404(Project, pk=project_id)
-    form = ProjectForm(
-        request.POST if request.method == "POST" else None,
-        instance=project,
-    )
+    form = ProjectForm(request.POST or None, instance=project)
 
     if request.method == "POST" and form.is_valid():
         with transaction.atomic():
             project = form.save()
             _record_activity(request.user, "update", "project", project)
+        if is_ajax:
+            return JsonResponse(
+                {"success": True, "message": "Project updated successfully."},
+            )
         messages.success(request, "Project updated successfully.")
         return redirect("main:show_project")
-    context = {
-        "name" : "Rizki",
-        "form" : form, 
-        "is_editing" : True, 
-    }
 
+    if request.method == "POST" and is_ajax:
+        return JsonResponse(
+            {"success": False, "errors": form.errors.get_json_data()},
+            status=400,
+        )
+
+    context = {
+        "name": "Rizki",
+        "form": form,
+        "is_editing": True,
+    }
     return render(request, "project_form.html", context)
 
 
 @login_required(login_url="/login/")
 @require_POST
 def delete_project(request, project_id):
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
+
     if not request.user.is_superuser:
+        if is_ajax:
+            return JsonResponse(
+                {"success": False, "message": "Only administrators can delete projects."},
+                status=403,
+            )
         raise PermissionDenied
 
     project = get_object_or_404(Project, pk=project_id)
@@ -173,19 +207,39 @@ def delete_project(request, project_id):
         _record_activity(request.user, "delete", "project", project)
         project.delete()
 
+    if is_ajax:
+        return JsonResponse(
+            {"success": True, "message": "Project deleted successfully."},
+        )
     messages.success(request, "Project deleted successfully.")
     return redirect("main:show_project")
 
-@login_required(login_url="/login/")
+
 @require_POST
 def toggle_project_star(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
+    if not request.user.is_authenticated:
+        return JsonResponse(
+            {"success": False, "message": "Please log in to star projects."},
+            status=403,
+        )
 
-    if project.starred_by.filter(pk=request.user.pk).exists():
-        project.starred_by.remove(request.user)
-    else:
-        project.starred_by.add(request.user)
+    with transaction.atomic():
+        project = get_object_or_404(
+            Project.objects.select_for_update(), pk=project_id
+        )
+        is_starred = project.starred_by.filter(pk=request.user.pk).exists()
+        if is_starred:
+            project.starred_by.remove(request.user)
+        else:
+            project.starred_by.add(request.user)
+        star_count = project.starred_by.count()
 
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "is_starred": not is_starred,
+            "star_count": star_count,
+        })
     return redirect("main:show_project")
 
 @login_required(login_url="/login/")
@@ -363,7 +417,7 @@ def update_skill(request, skill_id):
 
 def get_projects_json(request):
     title_query = request.GET.get("title", "").strip()
-    projects = Project.objects.prefetch_related("starred_by").all()
+    projects = Project.objects.prefetch_related("starred_by").order_by("title")
 
     if title_query:
         projects = projects.filter(title__icontains=title_query)

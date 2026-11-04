@@ -1,78 +1,95 @@
 {% extends "base.html" %}
 {% load static %}
-{% block content %}
-<main class="container"
-      id="projects-page"
-      data-api-url="{% url 'main:get_projects_json' %}">
-    <h1>Projects</h1>
-    <form method="get" action="{% url 'main:show_project' %}">
-        <script src="/static/js/projects.js" defer></script>
-        <label for="project-search">Search projects</label>
-        <input
-            type="search"
-            id="project-search"
-            name="title"
-            value="{{ title_query }}"
-            placeholder="Search by title"
-        >
-        <button type="submit">Search</button>
-    </form>
-    {% for message in messages %}
-        <p role="status">{{ message }}</p>
-    {% endfor %}
-    {% if user.is_superuser %}
-        <a href="{% url 'main:create_project' %}">Add Project</a>
-    {% endif %}
-    <div id="project-results"></div>
-    {% for project in project_list %}
-            <article class="project-card">
-            {% if can_edit %}
-                <a href="{% url 'main:update_project' project.pk %}">
-                    Edit Project
-                </a>
-            {% endif %}
-            {% if user.is_superuser %}
-                <form method="post"
-                      action="{% url 'main:delete_project' project.pk %}"
-                      onsubmit="return confirm('Delete this project?');">
-                    {% csrf_token %}
-                    <button type="submit">Delete Project</button>
-                </form>
-            {% endif %}
-            <p>Stars: {{ project.starred_by.count }}</p>
 
-            {% if user.is_authenticated %}
-                <form method="post"
-                      action="{% url 'main:toggle_project_star' project.pk %}">
-                    {% csrf_token %}
-                    <button type="submit">
-                        {% if user in project.starred_by.all %}
-                            Unstar Project
-                        {% else %}
-                            Star Project
-                        {% endif %}
-                    </button>
+{% block meta %}
+    <title>Projects - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+    <main>
+        <section class="project-section" id="projects">
+            <div class="container">
+                <div class="section-heading">
+                    <div>
+                        <p class="section-kicker">Things I have built</p>
+                        <h2>Projects</h2>
+                    </div>
+                    {% if user.is_authenticated and user.is_superuser %}
+                        <button type="button" class="button" id="open-project-dialog">Add Project</button>
+                    {% endif %}
+                </div>
+
+                {% if request.COOKIES.last_login %}
+                    <p class="last-login">Sesi terakhir login: {{ request.COOKIES.last_login }}</p>
+                {% endif %}
+
+                <form method="get" action="{% url 'main:show_project' %}" class="project-search" id="project-search-form">
+                    <input type="search" name="title" id="project-search-input" value="{{ title_query }}" placeholder="Search projects" class="project-search__input">
+                    <button type="submit" class="button">Search</button>
                 </form>
-            {% endif %}
-        
-            <h2>{{project.title}}</h2>
-            <p> {{project.description}}</p>
-            {% if project.tech_stack %}
-                <p>Technologies: {{project.tech_stack}}</p>
-            {% endif %}
-            {% if project.project_url %}
-                <a href="{{ project.project_url }}">View Project</a>
-            {% endif %}
-            {% if project.project_image_url%}
-                <img
-                    src="{{ project.project_image_url}}"
-                    alt="{{ project.title }}"
-                    width="320"
-                >  
-            {% endif %}
-        </article>
-    {% empty %}
-        <p>No projects yet.</p>
-    {% endfor %}
-</main>
+
+                <div class="project-grid" id="project-grid" data-api-url="{% url 'main:get_projects_json' %}" aria-live="polite" aria-busy="true">
+                    <p class="empty-state" role="status">Loading projects...</p>
+                </div>
+
+                <template id="project-card-template">
+                    <article class="project-card">
+                        <div class="project-thumb" hidden>
+                            <img src="" alt="" loading="lazy">
+                        </div>
+                        <div class="project-body">
+                            <h3></h3>
+                            <p class="project-description"></p>
+                            <ul class="project-tech" aria-label="Technologies used"></ul>
+                            <a class="project-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View project &rarr;</a>
+                            <p class="project-star-summary">&#9733; <span class="star-count">0</span> stars</p>
+                        </div>
+                        {% if user.is_authenticated %}
+                            <div class="project-actions">
+                                <form method="post" action="{% url 'main:toggle_project_star' '00000000-0000-0000-0000-000000000000' %}" class="project-star-form">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-secondary" aria-pressed="false"><span class="star-label">Star</span></button>
+                                </form>
+                                {% if can_edit %}
+                                    {% if user.is_superuser %}
+                                        <form method="post" action="{% url 'main:delete_project' '00000000-0000-0000-0000-000000000000' %}" class="project-delete-form">
+                                            {% csrf_token %}
+                                            <button type="submit" class="button button-danger">Delete</button>
+                                        </form>
+                                    {% endif %}
+                                    <button type="button" class="button button-secondary project-edit-button" data-update-url="{% url 'main:update_project' '00000000-0000-0000-0000-000000000000' %}">Edit</button>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </article>
+                </template>
+
+                {% if can_edit %}
+                    <dialog class="project-dialog" id="project-dialog" aria-labelledby="project-dialog-title">
+                        <div class="project-dialog__heading">
+                            <h2 id="project-dialog-title">Add a project</h2>
+                            <button type="button" class="button button-secondary" id="close-project-dialog" aria-label="Close dialog">Close</button>
+                        </div>
+                        <form method="post" action="{% url 'main:create_project' %}" class="skill-form" id="project-create-form">
+                            {% csrf_token %}
+                            <div class="form-error" data-error-for="__all__" hidden></div>
+                            {% for field in project_form %}
+                                <div class="form-group">
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {{ field }}
+                                    <p class="form-error" data-error-for="{{ field.name }}" hidden></p>
+                                </div>
+                            {% endfor %}
+                            <div class="skill-form-actions">
+                                <button type="submit" class="button" id="project-form-submit">Add Project</button>
+                                <button type="button" class="button button-secondary" id="cancel-project-dialog">Cancel</button>
+                            </div>
+                        </form>
+                    </dialog>
+                {% endif %}
+
+                <script src="{% static 'js/projects.js' %}" defer></script>
+            </div>
+        </section>
+    </main>
 {% endblock content %}
