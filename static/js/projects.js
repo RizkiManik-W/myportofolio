@@ -7,13 +7,25 @@ const projectForm = document.getElementById("project-create-form");
 const projectDialogTitle = document.getElementById("project-dialog-title");
 const projectFormSubmit = document.getElementById("project-form-submit");
 const projectIdPlaceholder = "00000000-0000-0000-0000-000000000000";
-const createProjectUrl = projectForm?.action;
-const ajaxHeaders = {
-    "X-Requested-With": "XMLHttpRequest",
-    "Accept": "application/json",
-};
+const PROJECT_LIST_URL = projectGrid.dataset.listUrl;
+const PROJECT_DETAIL_URL = projectGrid.dataset.detailUrl;
+const PROJECT_STAR_URL = projectGrid.dataset.starUrl;
+const PROJECT_FIELDS = ["title", "description", "tech_stack", "project_url", "project_image_url"];
+const projectsById = new Map();
+let editingProjectId = null;
 let projectSearchTimer;
 let currentProjectRequest;
+
+function getCookie(name) {
+    const prefix = `${name}=`;
+    const cookie = document.cookie.split(";").map((value) => value.trim())
+        .find((value) => value.startsWith(prefix));
+    return cookie ? decodeURIComponent(cookie.slice(prefix.length)) : null;
+}
+
+function projectEndpoint(pattern, id) {
+    return pattern.replace(projectIdPlaceholder, id);
+}
 
 function safeHttpUrl(value) {
     try {
@@ -22,6 +34,36 @@ function safeHttpUrl(value) {
     } catch (error) {
         return null;
     }
+}
+
+class ApiError extends Error {
+    constructor(message, status, data) {
+        super(message);
+        this.status = status;
+        this.data = data;
+    }
+}
+
+function apiErrorMessage(data, status) {
+    const messages = Object.values(data).flat().filter((value) => typeof value === "string");
+    return messages.join(" ") || `Request failed (HTTP ${status}).`;
+}
+
+// Single place for POST/PUT/PATCH/DELETE: JSON body, CSRF header, consistent errors.
+async function writeProject(url, method, payload) {
+    const response = await fetch(url, {
+        method,
+        headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken") || "",
+        },
+        body: payload === undefined ? undefined : JSON.stringify(payload),
+    });
+    if (response.status === 204) return null;
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new ApiError(apiErrorMessage(data, response.status), response.status, data);
+    return data;
 }
 
 function showProjectLoadingState() {
@@ -33,29 +75,39 @@ function showProjectLoadingState() {
     projectGrid.setAttribute("aria-busy", "true");
 }
 
+function renderStarState(card, project) {
+    card.querySelector(".star-count").textContent = project.star_count;
+    card.querySelector(".project-star-summary").title = project.starred_by_names || "No stars yet";
+    const starButton = card.querySelector(".project-star-button");
+    if (starButton) {
+        starButton.classList.toggle("is-starred", project.is_starred);
+        starButton.setAttribute("aria-pressed", String(project.is_starred));
+        starButton.querySelector(".star-label").textContent = project.is_starred ? "Starred" : "Star";
+    }
+}
+
 function buildProjectCard(project) {
     const card = projectTemplate.content.firstElementChild.cloneNode(true);
-    const fields = project.fields;
+    card.dataset.id = project.id;
 
-    card.querySelector("h3").textContent = fields.title;
-    card.querySelector(".project-description").textContent = fields.description;
-    card.querySelector(".star-count").textContent = fields.star_count;
-    card.querySelector(".project-star-summary").title = fields.starred_by_names || "No stars yet";
+    // textContent / setAttribute only: API data is never parsed as HTML.
+    card.querySelector("h3").textContent = project.title;
+    card.querySelector(".project-description").textContent = project.description;
 
-    const imageUrl = safeHttpUrl(fields.project_image_url);
+    const imageUrl = safeHttpUrl(project.project_image_url);
+    const thumb = card.querySelector(".project-thumb");
     if (imageUrl) {
-        const thumb = card.querySelector(".project-thumb");
         const image = thumb.querySelector("img");
         image.src = imageUrl;
-        image.alt = `${fields.title} preview`;
+        image.alt = `${project.title} preview`;
         image.addEventListener("error", () => thumb.remove());
         thumb.hidden = false;
     } else {
-        card.querySelector(".project-thumb").remove();
+        thumb.remove();
     }
 
     const techList = card.querySelector(".project-tech");
-    const technologies = fields.tech_stack.split(",").map((tech) => tech.trim()).filter(Boolean);
+    const technologies = project.tech_stack.split(",").map((tech) => tech.trim()).filter(Boolean);
     if (technologies.length) {
         technologies.forEach((tech) => {
             const item = document.createElement("li");
@@ -67,7 +119,7 @@ function buildProjectCard(project) {
     }
 
     const link = card.querySelector(".project-link");
-    const projectUrl = safeHttpUrl(fields.project_url);
+    const projectUrl = safeHttpUrl(project.project_url);
     if (projectUrl) {
         link.href = projectUrl;
         link.hidden = false;
@@ -75,43 +127,7 @@ function buildProjectCard(project) {
         link.remove();
     }
 
-    const starButton = card.querySelector(".project-star-form button");
-    if (starButton) {
-        starButton.classList.toggle("is-starred", fields.is_starred);
-        starButton.setAttribute("aria-pressed", String(fields.is_starred));
-        starButton.querySelector(".star-label").textContent = fields.is_starred ? "Starred" : "Star";
-    }
-
-    card.querySelectorAll("[action], [data-update-url]").forEach((element) => {
-        const attribute = element.hasAttribute("action") ? "action" : "data-update-url";
-        element.setAttribute(
-            attribute,
-            element.getAttribute(attribute).replace(projectIdPlaceholder, project.pk)
-        );
-    });
-
-    const editButton = card.querySelector(".project-edit-button");
-    if (editButton) {
-        editButton.addEventListener("click", () => {
-            clearProjectErrors();
-            projectForm.action = editButton.dataset.updateUrl;
-            projectDialogTitle.textContent = "Edit project";
-            projectFormSubmit.textContent = "Save Changes";
-
-            Object.entries({
-                title: fields.title,
-                description: fields.description,
-                tech_stack: fields.tech_stack || "",
-                project_url: fields.project_url || "",
-                project_image_url: fields.project_image_url || "",
-            }).forEach(([name, value]) => {
-                projectForm.elements.namedItem(name).value = value;
-            });
-
-            projectDialog.showModal();
-        });
-    }
-
+    renderStarState(card, project);
     return card;
 }
 
@@ -120,16 +136,23 @@ async function loadProjects(title = projectSearchInput.value.trim()) {
     currentProjectRequest = new AbortController();
     showProjectLoadingState();
 
-    const url = new URL(projectGrid.dataset.apiUrl, window.location.origin);
+    const url = new URL(PROJECT_LIST_URL, window.location.origin);
     if (title) url.searchParams.set("title", title);
 
     try {
-        const response = await fetch(url, { signal: currentProjectRequest.signal });
-        if (!response.ok) throw new Error("Could not load projects");
+        const response = await fetch(url, {
+            headers: { "Accept": "application/json" },
+            signal: currentProjectRequest.signal,
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const projects = await response.json();
         const cards = document.createDocumentFragment();
 
-        projects.forEach((project) => cards.appendChild(buildProjectCard(project)));
+        projectsById.clear();
+        projects.forEach((project) => {
+            projectsById.set(project.id, project);
+            cards.appendChild(buildProjectCard(project));
+        });
 
         if (projects.length === 0) {
             const emptyState = document.createElement("p");
@@ -162,9 +185,20 @@ function clearProjectErrors() {
 function openCreateProjectDialog() {
     clearProjectErrors();
     projectForm.reset();
-    projectForm.action = createProjectUrl;
+    editingProjectId = null;
     projectDialogTitle.textContent = "Add a project";
     projectFormSubmit.textContent = "Add Project";
+    projectDialog.showModal();
+}
+
+function openEditProjectDialog(project) {
+    clearProjectErrors();
+    editingProjectId = project.id;
+    projectDialogTitle.textContent = "Edit project";
+    projectFormSubmit.textContent = "Save Changes";
+    PROJECT_FIELDS.forEach((name) => {
+        projectForm.elements.namedItem(name).value = project[name] || "";
+    });
     projectDialog.showModal();
 }
 
@@ -179,65 +213,41 @@ projectSearchForm.addEventListener("submit", (event) => {
     loadProjects();
 });
 
-projectGrid.addEventListener("submit", async (event) => {
-    const starForm = event.target.closest(".project-star-form");
-    if (!starForm) return;
+// Event delegation: keeps working after the grid is re-rendered.
+projectGrid.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button || button.disabled) return;
 
-    event.preventDefault();
-    const button = starForm.querySelector("button");
-    if (button.disabled) return;
+    const card = button.closest(".project-card");
+    const project = projectsById.get(card.dataset.id);
+    const action = button.dataset.action;
+    if (!project) return;
+
+    if (action === "edit") {
+        openEditProjectDialog(project);
+        return;
+    }
+    if (action === "delete" && !window.confirm("Are you sure you want to delete this project?")) return;
+
     button.disabled = true;
-
     try {
-        const response = await fetch(starForm.action, {
-            method: "POST",
-            body: new FormData(starForm),
-            headers: ajaxHeaders,
-        });
-        if (!response.headers.get("content-type")?.includes("application/json")) {
-            throw new Error("Could not update this star. Please refresh and try again.");
+        if (action === "star") {
+            const updated = await writeProject(projectEndpoint(PROJECT_STAR_URL, project.id), "POST");
+            projectsById.set(updated.id, updated);
+            renderStarState(card, updated);
+        } else {
+            await writeProject(projectEndpoint(PROJECT_DETAIL_URL, project.id), "DELETE");
+            await loadProjects();
+            showToast("Project deleted", "Project deleted successfully.", "success");
         }
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Could not update this star.");
-
-        button.classList.toggle("is-starred", result.is_starred);
-        button.setAttribute("aria-pressed", String(result.is_starred));
-        button.querySelector(".star-label").textContent = result.is_starred ? "Starred" : "Star";
-        const card = starForm.closest(".project-card");
-        card.querySelector(".star-count").textContent = result.star_count;
-        card.querySelector(".project-star-summary").removeAttribute("title");
     } catch (error) {
-        showToast("Could not update star", error.message, "error");
+        showToast(
+            action === "star" ? "Could not update star" : "Could not delete project",
+            error.message || "Please try again.",
+            "error"
+        );
     } finally {
         button.disabled = false;
-    }
-});
-
-projectGrid.addEventListener("submit", async (event) => {
-    const deleteForm = event.target.closest(".project-delete-form");
-    if (!deleteForm) return;
-
-    event.preventDefault();
-    if (!window.confirm("Are you sure you want to delete this project?")) return;
-
-    const deleteButton = deleteForm.querySelector("button[type='submit']");
-    deleteButton.disabled = true;
-
-    try {
-        const response = await fetch(deleteForm.action, {
-            method: "POST",
-            body: new FormData(deleteForm),
-            headers: ajaxHeaders,
-        });
-        const result = await response.json();
-        if (!response.ok) throw new Error(result.message || "Could not delete this project.");
-
-        await loadProjects();
-        showToast("Project deleted", result.message, "success");
-    } catch (error) {
-        showToast("Could not delete project", error.message || "Please try again.", "error");
-    } finally {
-        deleteButton.disabled = false;
     }
 });
 
@@ -252,46 +262,49 @@ if (projectForm) {
     projectForm.addEventListener("submit", async (event) => {
         event.preventDefault();
 
-        const isEditing = projectForm.action !== createProjectUrl;
+        const isEditing = editingProjectId !== null;
         const submitButton = projectForm.querySelector("button[type='submit']");
-        const errorMessages = projectForm.querySelectorAll("[data-error-for]");
         clearProjectErrors();
         submitButton.disabled = true;
 
         try {
-            const response = await fetch(projectForm.action, {
-                method: "POST",
-                body: new FormData(projectForm),
-                headers: ajaxHeaders,
-            });
-            const result = await response.json();
-
-            if (!response.ok) {
-                if (result.errors) {
-                    Object.entries(result.errors).forEach(([field, errors]) => {
-                        const target = [...errorMessages].find(
-                            (element) => element.dataset.errorFor === field
-                        );
-                        if (target) {
-                            target.textContent = errors.map((error) => error.message).join(" ");
-                            target.hidden = false;
-                        }
-                    });
-                    return;
-                }
-                throw new Error(result.message || "Could not save this project.");
+            const fields = new FormData(projectForm);
+            const payload = Object.fromEntries(PROJECT_FIELDS.map((name) => [name, fields.get(name)]));
+            if (isEditing) {
+                await writeProject(projectEndpoint(PROJECT_DETAIL_URL, editingProjectId), "PATCH", payload);
+            } else {
+                await writeProject(PROJECT_LIST_URL, "POST", payload);
             }
 
             projectForm.reset();
             projectDialog.close();
             await loadProjects();
-            showToast(isEditing ? "Project updated" : "Project added", result.message, "success");
-        } catch (error) {
             showToast(
-                isEditing ? "Could not update project" : "Could not add project",
-                error.message || "Please try again.",
-                "error"
+                isEditing ? "Project updated" : "Project added",
+                isEditing ? "Project updated successfully." : "Project added successfully.",
+                "success"
             );
+        } catch (error) {
+            // DRF validation errors are flat: {"title": ["..."]}. Show them next to the field.
+            const fieldErrors = error.status === 400 ? error.data : null;
+            let shownInline = false;
+            if (fieldErrors) {
+                Object.entries(fieldErrors).forEach(([field, messages]) => {
+                    const target = projectForm.querySelector(`[data-error-for="${field}"]`);
+                    if (target) {
+                        target.textContent = [].concat(messages).join(" ");
+                        target.hidden = false;
+                        shownInline = true;
+                    }
+                });
+            }
+            if (!shownInline) {
+                showToast(
+                    isEditing ? "Could not update project" : "Could not add project",
+                    error.message || "Please try again.",
+                    "error"
+                );
+            }
         } finally {
             submitButton.disabled = false;
         }

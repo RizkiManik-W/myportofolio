@@ -28,7 +28,14 @@
                     <button type="submit" class="button">Search</button>
                 </form>
 
-                <div class="project-grid" id="project-grid" data-api-url="{% url 'main:get_projects_json' %}" aria-live="polite" aria-busy="true">
+                {# Ensures the csrftoken cookie exists for session-authenticated API writes. #}
+                {% csrf_token %}
+
+                <div class="project-grid" id="project-grid"
+                     data-list-url="{% url 'api:project-list' %}"
+                     data-detail-url="{% url 'api:project-detail' '00000000-0000-0000-0000-000000000000' %}"
+                     data-star-url="{% url 'api:project-star' '00000000-0000-0000-0000-000000000000' %}"
+                     aria-live="polite" aria-busy="true">
                     <p class="empty-state" role="status">Loading projects...</p>
                 </div>
 
@@ -46,18 +53,12 @@
                         </div>
                         {% if user.is_authenticated %}
                             <div class="project-actions">
-                                <form method="post" action="{% url 'main:toggle_project_star' '00000000-0000-0000-0000-000000000000' %}" class="project-star-form">
-                                    {% csrf_token %}
-                                    <button type="submit" class="button button-secondary" aria-pressed="false"><span class="star-label">Star</span></button>
-                                </form>
+                                <button type="button" class="button button-secondary project-star-button" data-action="star" aria-pressed="false"><span class="star-label">Star</span></button>
                                 {% if can_edit %}
                                     {% if user.is_superuser %}
-                                        <form method="post" action="{% url 'main:delete_project' '00000000-0000-0000-0000-000000000000' %}" class="project-delete-form">
-                                            {% csrf_token %}
-                                            <button type="submit" class="button button-danger">Delete</button>
-                                        </form>
+                                        <button type="button" class="button button-danger project-delete-button" data-action="delete">Delete</button>
                                     {% endif %}
-                                    <button type="button" class="button button-secondary project-edit-button" data-update-url="{% url 'main:update_project' '00000000-0000-0000-0000-000000000000' %}">Edit</button>
+                                    <button type="button" class="button button-secondary project-edit-button" data-action="edit">Edit</button>
                                 {% endif %}
                             </div>
                         {% endif %}

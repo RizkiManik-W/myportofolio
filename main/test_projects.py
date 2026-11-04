@@ -88,26 +88,32 @@ class ProjectApiTests(ProjectTestBase):
 class ProjectPageTests(ProjectTestBase):
     def test_page_is_loaded_via_api_not_server_rendered(self):
         response = self.client.get(reverse("main:show_project"))
-        self.assertContains(response, 'data-api-url="%s"' % reverse("main:get_projects_json"))
+        self.assertContains(response, 'data-list-url="%s"' % reverse("api:project-list"))
         self.assertNotContains(response, "Portfolio Website")
 
     def test_controls_depend_on_role(self):
         url = reverse("main:show_project")
 
         anonymous = self.client.get(url)
-        self.assertNotContains(anonymous, 'class="project-star-form"')
+        self.assertNotContains(anonymous, 'data-action="star"')
         self.assertNotContains(anonymous, 'id="project-dialog"')
 
         self.client.force_login(self.viewer)
         regular = self.client.get(url)
-        self.assertContains(regular, 'class="project-star-form"')
-        self.assertNotContains(regular, 'class="project-delete-form"')
-        self.assertNotContains(regular, "data-update-url=")
+        self.assertContains(regular, 'data-action="star"')
+        self.assertNotContains(regular, 'data-action="delete"')
+        self.assertNotContains(regular, 'data-action="edit"')
 
         self.client.force_login(self.admin)
         admin = self.client.get(url)
-        self.assertContains(admin, 'class="project-delete-form"')
+        self.assertContains(admin, 'data-action="delete"')
+        self.assertContains(admin, 'data-action="edit"')
         self.assertContains(admin, 'id="open-project-dialog"')
+
+    def test_page_sets_csrf_cookie_for_regular_users(self):
+        self.client.force_login(self.viewer)
+        response = self.client.get(reverse("main:show_project"))
+        self.assertIn("csrftoken", response.cookies)
 
 
 class ProjectWriteTests(ProjectTestBase):

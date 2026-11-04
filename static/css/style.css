@@ -377,10 +377,6 @@ button.button:hover {
     padding: 0.75rem 1.25rem 1.25rem;
 }
 
-.project-card .project-actions form {
-    margin: 0;
-}
-
 .project-card .project-actions button.button {
     display: inline-flex;
     min-height: 0;
@@ -399,7 +395,7 @@ button.button:hover {
     box-shadow: none;
 }
 
-.project-card .project-actions .project-star-form button.button.is-starred {
+.project-card .project-actions button.project-star-button.is-starred {
     background: var(--cyan-bright);
     border-color: var(--cyan-light);
     color: var(--bg-primary);
