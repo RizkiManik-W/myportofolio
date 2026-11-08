@@ -142,4 +142,47 @@ if (skillCreateForm) {
         }
     });
 }
+
+skillGrid.addEventListener("submit", async (event) => {
+    const form = event.target.closest(".skill-star-form");
+    if (!form) return;
+
+    event.preventDefault();
+
+    const button = form.querySelector("button[type='submit']");
+    button.disabled = true;
+
+    try {
+        const response = await fetch(form.action, {
+            method: "POST",
+            headers: {
+                "Accept": "application/json",
+                "X-CSRFToken": form.querySelector(
+                    "[name='csrfmiddlewaretoken']"
+                ).value,
+            },
+        });
+        const skill = await response.json();
+
+        if (!response.ok) {
+            throw new Error(skill.detail || "Could not update your star.");
+        }
+
+        button.classList.toggle("is-starred", skill.is_starred);
+        form.querySelector(".star-label").textContent =
+            skill.is_starred ? "Starred" : "Star";
+        form.querySelector(".star-count").textContent = skill.star_count;
+
+        showToast(
+            skill.is_starred ? "Skill starred" : "Star removed",
+            "Your preference was saved.",
+            "success"
+        );
+    } catch (error) {
+        showToast("Could not update star", error.message, "error");
+    } finally {
+        button.disabled = false;
+    }
+});
+
 loadSkills();

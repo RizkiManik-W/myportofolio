@@ -42,7 +42,7 @@
                         </div>
                         <div class="skill-actions">
                             {% if user.is_authenticated %}
-                                <form method="post" action="{% url 'main:toggle_skill_star' '00000000-0000-0000-0000-000000000000' %}" class="skill-star-form">
+                                <form method="post" action="{% url 'api:skill-star' '00000000-0000-0000-0000-000000000000' %}" class="skill-star-form">
                                     {% csrf_token %}
                                     <button type="submit" class="button button-secondary"><span class="star-label"></span> <span class="star-count"></span></button>
                                 </form>
