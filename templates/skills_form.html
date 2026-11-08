@@ -13,7 +13,12 @@
                 <h2>{% if is_editing %}Edit Skill{% else %}Add Skill{% endif %}</h2>
             </div>
 
-            <form method="post" class="skill-form">
+            <form method="post" class="skill-form"
+                {% if is_editing %}
+                id="skill-edit-form"
+                data-api-url="{% url 'api:skill-detail' skill.id %}"
+                data-success-url="{% url 'main:show_skills' %}"
+                {% endif %}>
                 {% csrf_token %}
 
                 {% for field in form %}
@@ -23,7 +28,7 @@
                         </label>
 
                         {{ field }}
-
+                        <p class="form-error" data-error-for="{{ field.name }}" hidden></p>
                         {% for error in field.errors %}
                             <p class="form-error">{{ error }}</p>
                         {% endfor %}
@@ -43,4 +48,10 @@
         </div>
     </section>
 </main>
+
+{% if is_editing %}
+    {% load static %}
+    <script src="{% static 'js/skill_edit.js' %}" defer></script>
+{% endif %}
+
 {% endblock content %}

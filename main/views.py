@@ -412,6 +412,7 @@ def update_skill(request, skill_id):
         "name": "Rizki",
         "form": form,
         "is_editing": True,
+        "skill": skill,
     }
     return render(request, "skills_form.html", context)
 
