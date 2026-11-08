@@ -49,7 +49,7 @@
                             {% endif %}
                             {% if can_edit %}
                                 {% if user.is_superuser %}
-                                    <form method="post" action="{% url 'main:delete_skill' '00000000-0000-0000-0000-000000000000' %}">
+                                    <form method="post" action="{% url 'api:skill-detail' '00000000-0000-0000-0000-000000000000' %}" class="skill-delete-form">
                                         {% csrf_token %}
                                         <button type="submit" class="button button-danger">Delete</button>
                                     </form>

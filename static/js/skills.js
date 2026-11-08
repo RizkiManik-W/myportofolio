@@ -185,4 +185,42 @@ skillGrid.addEventListener("submit", async (event) => {
     }
 });
 
+skillGrid.addEventListener("submit", async (event) => {
+    const form = event.target.closest(".skill-delete-form");
+    if (!form) return;
+
+    event.preventDefault();
+
+    if (!window.confirm("Delete this skill? This cannot be undone.")) {
+        return;
+    }
+
+    const button = form.querySelector("button[type='submit']");
+    button.disabled = true;
+
+    try {
+        const response = await fetch(form.action, {
+            method: "DELETE",
+            headers: {
+                "Accept": "application/json",
+                "X-CSRFToken": form.querySelector(
+                    "[name='csrfmiddlewaretoken']"
+                ).value,
+            },
+        });
+
+        if (!response.ok) {
+            const result = await response.json().catch(() => ({}));
+            throw new Error(result.detail || "Could not delete this skill.");
+        }
+
+        await loadSkills();
+        showToast("Skill deleted", "The skill was removed.", "success");
+    } catch (error) {
+        showToast("Could not delete skill", error.message, "error");
+    } finally {
+        button.disabled = false;
+    }
+});
+
 loadSkills();
