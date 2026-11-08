@@ -28,7 +28,7 @@
                     <button type="submit" class="button">Search</button>
                 </form>
 
-                <div class="skills-grid" id="skills-grid" data-api-url="{% url 'main:get_skills_json' %}" aria-live="polite" aria-busy="true"></div>
+                <div class="skills-grid" id="skills-grid" data-api-url="{% url 'api:skill-list' %}" aria-live="polite" aria-busy="true"></div>
 
                 {{ skill_categories|json_script:"skill-categories" }}
                 <template id="skill-card-template">

@@ -26,7 +26,7 @@ async function loadSkills(searchTitle = skillSearchInput.value.trim()) {
 
         skills.forEach((skill, index) => {
             const card = skillTemplate.content.firstElementChild.cloneNode(true);
-            const fields = skill.fields;
+            const fields = skill;
 
             card.querySelector(".skill-number").textContent = String(index + 1).padStart(2, "0");
             card.querySelector(".skill-type").textContent = skillCategoryLabels.get(fields.category) || fields.category;
@@ -49,7 +49,7 @@ async function loadSkills(searchTitle = skillSearchInput.value.trim()) {
 
             card.querySelectorAll("[action], [href]").forEach((element) => {
                 const attribute = element.hasAttribute("action") ? "action" : "href";
-                element.setAttribute(attribute, element.getAttribute(attribute).replace(skillIdPlaceholder, skill.pk));
+                element.setAttribute(attribute, element.getAttribute(attribute).replace(skillIdPlaceholder, skill.id));
             });
             cards.appendChild(card);
         });
