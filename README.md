@@ -96,6 +96,11 @@ Saya menggunakan ChatGPT (OpenAI) untuk memahami instruksi tugas, membandingkann
 
 AI assistance reference: https://chatgpt.com/share/6a9ec111-2468-83ec-855e-b0f64a787498
 
+Tugas 6 : 
+### AI Assistance: Tugas 6
+
+Saya menggunakan sebuah OpenAI asisstant melalui personalized desktop app untuk step-by-step penjelasan, implementasi kode secara general, revie, dan test. 
+
 ### AI Assistance Log: Individual Assignment 4
 
 - Tool: ChatGPT (OpenAI).
@@ -144,3 +149,40 @@ Mengimplementasikan AJAX untuk experience dan skill
 2. `fetch()` mengembalikan sebuah Promise karena request network selesai secara asinkronus. Menggunakan `await` melakukan pause untuk fungsi async saat ini sampai respon tersedia, jadi code dapat mengecek status dan membaca data JSON secara terurut. tanpa `await` atau `.then()`, code akan akan tetap lanjut dengan Promise dibandingkan respon yang respon yang telah selesai diproses. Hal ini dapat menyebabkan hasil yang salah atau race condition.
 
 3. Cross-Site scripting (XSS) merupakan serangan dimana konten yang tidak dipercayai di interpretasikan sebagai executeable HTML atau JavaScript di user browser lain. Data yang diload AKAX tidak secara otomatis tidak aman, tapi JavaScript dapat membuat halaman rentan terhadap XSS jika memasukkan nilai yang tidak tepercaya menggunakan innerHTML. Template Django secara default melakukan escaping terhadap output variabel, sedangkan pada JavaScript sebaiknya digunakan API DOM yang aman seperti textContent atau melakukan escaping nilai secara eksplisit. Pada proyek ini, textContent digunakan untuk menampilkan teks, dan tag HTML pada judul serta deskripsi Skill dan Experience dihapus di sisi server.
+
+### Tugas 6
+
+#### Implementation Overview
+
+Di tugas ini, saya melakukan 'extend' pola Django Rest Framework dari project ke section skill, saya menambahkan skillSerializer untuk data representasi dan validasi, API endpoints untuk CRUD dan starring, dan permissions untuk pengunjung, regular user, editor dan owner. 
+
+Skills page sekarang menggunakan fetch() untuk load, seach, create, star dan delete skils tanpa melakukan reload page. Edit page yang sudah diimplementasi merubah skills melalui PATCH. Write request memerlukan SCRF token, dan API error ditampilkan melalui toasts. Saya juga menambahkan tests untuk role permissions, validation, stars dan CSRF protection.
+
+#### Reflection Questions
+
+1. REST merupakan architectural style yang berdasar dari resources, interface yang konsisten, pemisahan client-server, dan stateless communication. Hanya mengembalikan JSON hanya mendefinisikan format data, tidak menjamin jika API mengikuti REST principles. Resource URL, HTTP methods, status code, and request handling juga berguna. 
+
+Stateless communication berarti setiap request menganung informasi yang dibutuhkan tanpa mengandalkan sequence requests sebelumnya. 
+
+PUT digunakan untuk mengganti representasi resource secara lengkap, sedangkan PATCH mengubah sebagian field. Contohnya, PUT dapat digunakan untuk mengirim seluruh field Skill yang dapat diedit, sementara PATCH cukup mengirim {"proficiency": "Advanced"} untuk mengubah proficiency saja.
+
+2. DRF serializer mengconvert model objek ke response data dan memvalidasi data yang datang. Dibandingkan dengan membangun manual JsonResponse dicitonaries secara manual serializer ini memusatkan definisi kolom, validasi, dan aturan baca-saja (read-only).
+
+3. Authentication mengidentifikasi user, authorization menentukan aksi yang diperbolehkan. Visitor dapat membaca, user yang log in dapat melakukan star, editor dapat melakukan update, superuser dapat membuat dan mendelete. Pengecekan di server diperlukan karena user dapat mengirim direct request walaupun tombol disembunyikan.
+
+4. Session cookies dikirm secara otomatis melalui browsers, jadi menuliskan request memerlukan CSRD protection untuk mencegah situs lain melakukan aksi melalui sesi user. Bagian frontend mengirimkan X-CSRFToken. force_authenticate membypass normal autentikasi, jadi CSRF melakukan test menggunakan login dengan APIClient(enforce_csrf_checks=True).
+
+2. A DRF serializer converts model objects into response data and validates
+   incoming data. Compared with manually building JsonResponse dictionaries,
+   it centralizes field definitions, validation, and read-only rules.
+
+3. Authentication identifies the user; authorization determines their allowed
+   actions. Visitors can read, logged-in users can star, Editors can update,
+   and superusers can create and delete. Server-side permissions are essential
+   because users can send direct requests even when buttons are hidden.
+
+4. Session cookies are sent automatically by browsers, so write requests need
+   CSRF protection to prevent another site from acting through a user's session.
+   The frontend sends X-CSRFToken. force_authenticate bypasses normal
+   authentication, so CSRF tests instead use login() with
+   APIClient(enforce_csrf_checks=True).
